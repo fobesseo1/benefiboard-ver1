@@ -1,151 +1,11 @@
-/* import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-
-import { toast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { signUpWithEmailAndPassword } from '../actions';
-
-const FormSchema = z
-  .object({
-    email: z.string().email({
-      message: '올바른 형식의 이메일이 아닙니다.',
-    }),
-    password: z.string().min(6, {
-      message: '비밀번호는 6글자 이상이어야 합니다.',
-    }),
-    confirm: z.string().min(6, {
-      message: '비밀번호는 6글자 이상이어야 합니다.',
-    }),
-  })
-  .refine((data) => data.confirm === data.password, {
-    message: '비밀번호가 일치하지 않습니다.',
-    path: ['confirm'],
-  });
-
-export default function RegisterForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      confirm: '',
-    },
-  });
-
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const { result, error } = await signUpWithEmailAndPassword(data);
-    console.log('signUp', result, error);
-
-    if (error) {
-      toast({
-        variant: 'destructive',
-        title: '회원가입 실패',
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{error.message}</code>
-          </pre>
-        ),
-      });
-      alert(error.message);
-    } else {
-      toast({
-        title: '회원가입 성공',
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">회원가입을 완료하시려면 이메일을 확인해주세요</code>
-          </pre>
-        ),
-      });
-    }
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="example@gmail.com"
-                  {...field}
-                  type="email"
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="password"
-                  {...field}
-                  type="password"
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirm"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Confirm Password"
-                  {...field}
-                  type="password"
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full flex gap-2">
-          Register
-          <AiOutlineLoading3Quarters className={cn('animate-spin')} />
-        </Button>
-      </form>
-    </Form>
-  );
-}
- */
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { AiOutlineLoading3Quarters, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useState } from 'react';
+import { useTransition } from 'react';
 
 import {
   Form,
@@ -160,14 +20,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { signUpWithEmailAndPassword } from '../actions';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const FormSchema = z
   .object({
@@ -187,6 +40,7 @@ const FormSchema = z
   });
 
 export default function RegisterForm() {
+  const [isPending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -196,17 +50,28 @@ export default function RegisterForm() {
     },
   });
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState('');
-  const [dialogTitle, setDialogTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertTitle, setAlertTitle] = useState<string | null>(null);
+  const [alertVariant, setAlertVariant] = useState<'default' | 'destructive'>('default');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const { success, message } = await signUpWithEmailAndPassword(data);
-    console.log('signUp', success, message);
+    startTransition(async () => {
+      const result = await signUpWithEmailAndPassword(data);
+      console.log('signUp', result);
 
-    setDialogTitle(success ? '회원가입 성공' : '회원가입 실패');
-    setDialogMessage(message);
-    setDialogOpen(true);
+      if (!result.success) {
+        setAlertTitle('회원가입 실패');
+        setAlertMessage(result.message);
+        setAlertVariant('destructive');
+      } else {
+        setAlertTitle('회원가입 성공');
+        setAlertMessage(result.message);
+        setAlertVariant('default');
+      }
+    });
   }
 
   return (
@@ -218,7 +83,7 @@ export default function RegisterForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>이메일</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="example@gmail.com"
@@ -236,14 +101,23 @@ export default function RegisterForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>비밀번호</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="password"
-                    {...field}
-                    type="password"
-                    onChange={field.onChange}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="비밀번호 최소 6글자 이상 입력해주세요"
+                      {...field}
+                      type={showPassword ? 'text' : 'password'}
+                      onChange={field.onChange}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -254,41 +128,41 @@ export default function RegisterForm() {
             name="confirm"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>비밀번호 재확인</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Confirm Password"
-                    {...field}
-                    type="password"
-                    onChange={field.onChange}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="비밀번호와 동일한 값을 입력하세요"
+                      {...field}
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      onChange={field.onChange}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    >
+                      {showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <Button type="submit" className="w-full flex gap-2">
-            Register
-            <AiOutlineLoading3Quarters className={cn('animate-spin')} />
+            회원가입
+            <AiOutlineLoading3Quarters className={cn('animate-spin', { hidden: !isPending })} />
           </Button>
         </form>
       </Form>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{dialogTitle}</DialogTitle>
-            <DialogDescription>
-              <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                <code className="text-white">{dialogMessage}</code>
-              </pre>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {alertMessage && (
+        <Alert className="mt-4" variant={alertVariant}>
+          <AlertTitle>{alertTitle}</AlertTitle>
+          <AlertDescription>{alertMessage}</AlertDescription>
+        </Alert>
+      )}
     </>
   );
 }

@@ -99,7 +99,7 @@ export default function InfiniteScrollPosts({
   const handlePostClick = async (postId: string) => {
     const post = posts.find((p) => p.id === postId); // 클릭한 포스트 찾기
     if (post) {
-      await addWritingPoints(post.author_id, 3); // 포스트 작성자에게 3포인트 추가
+      await addWritingPoints(post.author_id, 5); // 포스트 작성자에게 5포인트 추가
     }
 
     const readPostsKey = `readPosts_${userId}`;
@@ -129,13 +129,73 @@ export default function InfiniteScrollPosts({
           };
 
           return (
-            <div
-              key={post.id}
-              className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200"
-              onClick={() => prefetchPostDetail(post.id)}
-            >
-              <div className="flex justify-between items-center">
-                <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden">
+            <div key={post.id}>
+              {/* Default view */}
+              <div
+                className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200 lg:hidden"
+                onClick={() => prefetchPostDetail(post.id)}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden">
+                    <div className="flex">
+                      <p className="text-xs leading-tight tracking-tight text-gray-600">
+                        {post.parent_category_name || '아무거나'} &gt;
+                      </p>
+                      <p className="text-xs leading-tight tracking-tight text-gray-600 ml-1">
+                        {post.child_category_name || '프리토크'}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    {listformatDate(post.created_at) || 'No time'}
+                  </p>
+                </div>
+                <div
+                  className="flex-1 pt-2 pb-1 cursor-pointer"
+                  onClick={() => handlePostClick(post.id)}
+                >
+                  <p
+                    className={`font-semibold line-clamp-1 leading-tight tracking-tighter ${
+                      isPostRead(post.id) ? 'text-gray-400' : ''
+                    }`}
+                  >
+                    {post.title}
+                  </p>
+                </div>
+                <div className="flex gap-4 items-center overflow-hidden">
+                  <Link href={profileUrl} className="overflow-hidden flex-1">
+                    <p className="text-xs font-semibold leading-tight tracking-tight text-gray-600 truncate">
+                      {post.author_name || post.author_email || 'unknown'}
+                    </p>
+                  </Link>
+                  <div className="flex gap-1">
+                    <div className="flex items-center gap-[2px]">
+                      <SlHeart size={12} color="gray" />
+                      <p className="text-xs leading-tight tracking-tight text-gray-600">
+                        {post.views || '0'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-[2px]">
+                      <SlEye size={14} color="gray" />
+                      <p className="text-xs leading-tight tracking-tight text-gray-600">
+                        {post.views || '0'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-[2px]">
+                      <SlBubble size={12} color="gray" />
+                      <p className="text-xs leading-tight tracking-tight text-gray-600">
+                        {post.comments || '0'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* lg view */}
+              <div
+                className="hidden lg:flex w-[948px] mx-auto gap-4 items-center justify-between py-2 bg-white border-b-[1px] border-gray-200"
+                onClick={() => handlePostClick(post.id)}
+              >
+                <div className="flex items-center w-[140px]">
                   <div className="flex">
                     <p className="text-xs leading-tight tracking-tight text-gray-600">
                       {post.parent_category_name || '아무거나'} &gt;
@@ -145,29 +205,22 @@ export default function InfiniteScrollPosts({
                     </p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-600">
-                  {listformatDate(post.created_at) || 'No time'}
-                </p>
-              </div>
-              <div
-                className="flex-1 pt-2 pb-1 cursor-pointer"
-                onClick={() => handlePostClick(post.id)}
-              >
-                <p
-                  className={`font-semibold line-clamp-1 leading-tight tracking-tighter ${
-                    isPostRead(post.id) ? 'text-gray-400' : ''
-                  }`}
-                >
-                  {post.title}
-                </p>
-              </div>
-              <div className="flex gap-4 items-center overflow-hidden">
-                <Link href={profileUrl} className="overflow-hidden flex-1">
-                  <p className="text-xs font-semibold leading-tight tracking-tight text-gray-600 truncate">
+                <div className="w-[540px] py-1 cursor-pointer">
+                  <p
+                    className={`font-semibold line-clamp-1 leading-tight tracking-tighter ${
+                      isPostRead(post.id) ? 'text-gray-400' : ''
+                    }`}
+                  >
+                    {post.title}
+                  </p>
+                </div>
+
+                <Link href={profileUrl} className="overflow-hidden w-[120px]">
+                  <p className="text-sm leading-tight tracking-tight text-gray-600 truncate">
                     {post.author_name || post.author_email || 'unknown'}
                   </p>
                 </Link>
-                <div className="flex gap-1">
+                <div className="flex gap-1 w-[100px]">
                   <div className="flex items-center gap-[2px]">
                     <SlHeart size={12} color="gray" />
                     <p className="text-xs leading-tight tracking-tight text-gray-600">
@@ -187,6 +240,10 @@ export default function InfiniteScrollPosts({
                     </p>
                   </div>
                 </div>
+
+                <p className="text-xs text-gray-600 lg:block w-[48px]">
+                  {listformatDate(post.created_at) || 'No time'}
+                </p>
               </div>
             </div>
           );
@@ -194,6 +251,7 @@ export default function InfiniteScrollPosts({
       ) : (
         <p className="hover:text-red-200 text-blue-400">No posts</p>
       )}
+
       {loading && <p>Loading...</p>}
       <div ref={ref} />
     </div>

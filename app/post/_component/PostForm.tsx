@@ -1,6 +1,7 @@
+// components/PostForm.tsx
 'use client';
 
-import { useState, FormEvent, ChangeEvent, useRef } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +21,7 @@ export type UserPropsType = {
   user_name?: string;
   user_email?: string;
   user_avatar_url?: string;
+  initialParentCategoryId?: string;
 };
 
 export default function PostForm({
@@ -27,12 +29,17 @@ export default function PostForm({
   user_name,
   user_avatar_url,
   user_email,
+  initialParentCategoryId,
 }: UserPropsType) {
-  const [parentCategoryId, setParentCategoryId] = useState<string | ''>('');
-  const [childCategoryId, setChildCategoryId] = useState<string | ''>('');
+  const [parentCategoryId, setParentCategoryId] = useState<string>(initialParentCategoryId || '');
+  const [childCategoryId, setChildCategoryId] = useState<string>('');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isValidCategoryId = (id: string) => {
+    return categories.some((category) => category.id === id);
+  };
 
   const handleParentCategoryChange = (value: string) => {
     setParentCategoryId(value);
@@ -100,9 +107,14 @@ export default function PostForm({
       formData.append('user_email', user_email);
     }
 
-    // 카테고리가 선택되지 않았으면 null을 추가
-    formData.append('parent_category_id', parentCategoryId || '');
-    formData.append('child_category_id', childCategoryId || '');
+    // 카테고리 ID 추가 (유효성 검사 후 추가)
+    formData.append(
+      'parent_category_id',
+      isValidCategoryId(parentCategoryId) ? parentCategoryId : ''
+    );
+    formData.append('child_category_id', isValidCategoryId(childCategoryId) ? childCategoryId : '');
+
+    console.log('Form Data:', Object.fromEntries(formData)); // 디버깅용
 
     await createPost(formData);
   };
@@ -127,7 +139,7 @@ export default function PostForm({
         {/* 카테고리1차 */}
         <div className="space-y-2">
           <Label htmlFor="parent_category">Parent Category</Label>
-          <Select value={parentCategoryId} onValueChange={handleParentCategoryChange}>
+          <Select value={parentCategoryId || ''} onValueChange={handleParentCategoryChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Parent Category" />
             </SelectTrigger>
@@ -142,7 +154,7 @@ export default function PostForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="child_category">Child Category</Label>
-          <Select value={childCategoryId} onValueChange={handleChildCategoryChange}>
+          <Select value={childCategoryId || ''} onValueChange={handleChildCategoryChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Child Category" />
             </SelectTrigger>

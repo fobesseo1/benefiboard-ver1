@@ -1,3 +1,4 @@
+// index.ts
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';

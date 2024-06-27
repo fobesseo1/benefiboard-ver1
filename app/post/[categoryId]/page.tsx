@@ -69,16 +69,8 @@ export default async function PostListPageByCategory({
 
   return (
     <div className="pt-4">
-      <p>카테고리 리스트</p>
       <SearchBar />
-      <div className="grid grid-cols-2 h-12">
-        <div className="bg-white border-b-[1px] border-gray-400 flex justify-center items-center">
-          <p className="font-bold text-center">인기</p>
-        </div>
-        <div className="bg-white border-b-[1px] border-gray-200 flex justify-center items-center">
-          <p className="font-light text-center">최신</p>
-        </div>
-      </div>
+
       <div className="flex flex-col px-4 pt-4 ">
         <InfiniteScrollPosts
           initialPosts={initialPosts}

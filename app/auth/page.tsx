@@ -12,11 +12,11 @@ export default async function page() {
     redirect('/post');
   } */
   return (
-    <div className="flex justify-center mt-16 ">
+    <div className="flex justify-center mt-16 lg:w-[474px] mx-auto">
       <div className="w-full mx-6 flex flex-col items-center gap-16">
         <img src="/logo-benefiboard.svg" alt="" />
-        <SignOut />
         <AuthForm />
+        <SignOut />
       </div>
     </div>
   );

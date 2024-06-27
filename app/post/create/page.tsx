@@ -1,3 +1,4 @@
+// app/post/create/page.tsx
 import PostForm from '../_component/PostForm';
 import { CurrentUser, getCurrentUserInfo } from '@/lib/cookies';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -5,8 +6,15 @@ import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default async function PostCreatePage() {
+export default async function PostCreatePage({
+  searchParams,
+}: {
+  searchParams: { categoryId?: string };
+}) {
   const currentUser: CurrentUser | null = getCurrentUserInfo();
+  const categoryId = searchParams.categoryId || '';
+
+  console.log('Post createPage categoryId:', categoryId);
 
   if (!currentUser) {
     console.log('nonono');
@@ -42,6 +50,7 @@ export default async function PostCreatePage() {
         user_name={currentUser.username || ''}
         user_avatar_url={currentUser.avatar_url || ''}
         user_email={currentUser.email || ''}
+        initialParentCategoryId={categoryId}
       />
     </div>
   );

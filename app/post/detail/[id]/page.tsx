@@ -13,6 +13,7 @@ const ExternalLinks = lazy(() => import('../../_component/ExternalLinksComponent
 const ClientPostDetail = lazy(() => import('../../_component/ClientPostDetail'));
 
 export default async function PostDetailPage({ params }: { params: { id: string } }) {
+  const pagePath = 'post/detail';
   const { id } = params;
 
   const supabase = await createSupabaseServerClient();
@@ -92,7 +93,13 @@ export default async function PostDetailPage({ params }: { params: { id: string 
       {/* AdAlert 컴포넌트를 추가 */}
       {roundData && !animationExecuted && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-          <AdAlert userId={currentUser?.id ?? null} postId={id} initialRoundData={roundData} />
+          <AdAlert
+            userId={currentUser?.id ?? null}
+            postId={id}
+            initialRoundData={roundData}
+            author_id={post?.author_id}
+            pagePath={pagePath}
+          />
         </div>
       )}
     </div>

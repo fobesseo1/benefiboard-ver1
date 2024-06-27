@@ -12,8 +12,12 @@ export default async function SignOut() {
   };
 
   return (
-    <form action={logout}>
-      <Button>SignOut</Button>
-    </form>
+    <div className="w-full flex justify-end -mt-4 mb-12">
+      <form action={logout} className="w-1/3">
+        <Button variant="outline" className="w-full">
+          로그아웃
+        </Button>
+      </form>
+    </div>
   );
 }

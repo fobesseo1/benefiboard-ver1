@@ -12,11 +12,6 @@ export default async function PostEditPage() {
 
   return (
     <div>
-      <h2>PostEditPage</h2>
-      {currentUser.id ? <p>Hello {currentUser.id}</p> : null}
-      {currentUser.username ? <p>Hello {currentUser.username}</p> : null}
-      {currentUser.email ? <p>Hello {currentUser.email}</p> : null}
-      {currentUser.avatar_url ? <p>Hello {currentUser.avatar_url}</p> : null}
       <EditForm
         user_id={currentUser.id}
         user_name={currentUser.username || ''}

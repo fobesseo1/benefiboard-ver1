@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={notoSansKR.className}>
-        <div className="">
+        <div className="max-w-[1280px] mx-auto">
           <Header />
           <main className="pt-16 pb-16 min-h-screen tracking-tight text-gray-800 leading-tight">
             {children}

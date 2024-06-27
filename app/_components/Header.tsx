@@ -62,7 +62,7 @@ const Header = () => {
 
   return (
     /* top위치 status에 따라 조정필요 */
-    <header className="fixed top-0  left-0 z-50 w-screen h-16 flex items-center justify-between px-6 border-b-[1px] border-gray-200 bg-white">
+    <header className="fixed top-0  left-0 z-50 w-screen h-16 flex items-center justify-between px-6 border-b-[1px] border-gray-200 bg-white lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:w-[948px]">
       <BiArrowBack size={24} onClick={handleBackClick} className="cursor-pointer" />
 
       <img
@@ -94,29 +94,75 @@ const Header = () => {
         )}
         <Sheet>
           <SheetTrigger asChild>
-            <RxHamburgerMenu size={24} />
+            <button>
+              <RxHamburgerMenu size={24} />
+            </button>
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
               <SheetTitle>전체메뉴</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col py-4  gap-4">
-              <h2 className="text-lg font-semibold">게시판</h2>
-              <div className="flex flex-col gap-2">
-                {parentCategories.map((category) => (
-                  <SheetClose asChild key={category.id}>
-                    <Link href={`/post/${category.id}`}>
-                      <p className="font-semibold pl-2">- {category.name}</p>
+              <div className="board">
+                <h2 className="text-lg font-semibold">게시판</h2>
+                <div className="grid grid-cols-2 gap-1">
+                  {parentCategories.map((category) => (
+                    <SheetClose asChild key={category.id}>
+                      <Link href={`/post/${category.id}`}>
+                        <p className="font-semibold pl-2">- {category.name}</p>
+                      </Link>
+                    </SheetClose>
+                  ))}
+                </div>
+              </div>
+              <hr />
+              <div className="lucky">
+                <h2 className="text-lg font-semibold">행운의 숫자</h2>
+                <div className="flex flex-col gap-1">
+                  <SheetClose asChild>
+                    <Link href={`/goodluck`}>
+                      <p className="font-semibold pl-2">- 로또</p>
                     </Link>
                   </SheetClose>
-                ))}
+                  <SheetClose asChild>
+                    <Link href={`/goodluck`}>
+                      <p className="font-semibold pl-2">- 연금복권</p>
+                    </Link>
+                  </SheetClose>
+                </div>
               </div>
+              <hr />
+              {currentUser?.id && (
+                <div className="profile">
+                  <h2 className="text-lg font-semibold">프로필</h2>
+                  <div className="flex flex-col gap-1">
+                    <SheetClose asChild>
+                      <Link href={`/profile/${currentUser?.id}`}>
+                        <p className="font-semibold pl-2">- 나의 프로필 페이지</p>
+                      </Link>
+                    </SheetClose>
+                  </div>
+                </div>
+              )}
+              <hr />
+              {currentUser?.id && (
+                <div className="profile">
+                  <h2 className="text-lg font-semibold">메세지</h2>
+                  <div className="flex flex-col gap-1">
+                    <SheetClose asChild>
+                      <Link href={`/message`}>
+                        <p className="font-semibold pl-2">- 나의 메세지</p>
+                      </Link>
+                    </SheetClose>
+                  </div>
+                </div>
+              )}
             </div>
-            <SheetFooter>
+            {/* <SheetFooter>
               <SheetClose asChild>
                 <Button type="submit">Save changes</Button>
               </SheetClose>
-            </SheetFooter>
+            </SheetFooter> */}
           </SheetContent>
         </Sheet>
       </div>

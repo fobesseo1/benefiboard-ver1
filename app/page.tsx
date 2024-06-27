@@ -32,9 +32,9 @@ export default async function Home() {
       parent_category_id, child_category_id
     `
     )
-    .gt('created_at', sevenDayAgo) // 최근 1일 동안의 게시물
+    .gt('created_at', sevenDayAgo) // 최근 7일 동안의 게시물
     .order('views', { ascending: false }) // 조회수 기준으로 정렬
-    .limit(5); // 상위 5개 게시물만 가져옴
+    .limit(10); // 상위 10개 게시물만 가져옴
 
   const postsData = result.data || [];
 
@@ -51,19 +51,33 @@ export default async function Home() {
     })
   );
 
+  // console.log('postsWithCategoryNames:', postsWithCategoryNames);
+  // console.log('currentUser:', currentUser);
+  // console.log('sevenDayAgo:', sevenDayAgo);
+  // console.log('result:', result);
+  // console.log('postsData:', postsData);
+
   return (
-    <div className="flex flex-col items-center ">
-      <h2 className="text-xl font-bold mt-4">행운을 뽑아보자</h2>
-      <Link href="/goodluck">
-        <div className="mx-auto w-80 h-24 flex flex-col relative border-[1px] border-red-200 p-1 mt-4  rounded-xl">
-          <img src="/lotteryAd.png" alt="" />
-        </div>
-      </Link>
-      <h2 className="text-xl font-bold mt-4">이번주 인기 게시물</h2>
-      <TopPosts posts={postsWithCategoryNames} userId={currentUser?.id ?? null} />
-      <div className="blank_gap w-full h-8" />
+    <div className="flex flex-col items-center gap-4 lg:w-[948px] lg:mx-auto">
+      {/* 로또 */}
+      <div className="w-full mt-4 flex flex-col justify-center items-center">
+        <h2 className="text-xl font-bold my-4">행운을 뽑아보자</h2>
+        <Link href="/goodluck">
+          <div className="mx-auto w-80 h-24 flex flex-col relative border-[1px] border-red-200 p-1 mt-4  rounded-xl">
+            <img src="/lotteryAd.png" alt="" />
+          </div>
+        </Link>
+      </div>
+      <hr className="mt-4 mx-auto border-gray-200 w-full" />
+      {/* top10 */}
+      <div className="w-full flex flex-col justify-center items-center">
+        <h2 className="text-xl font-bold my-4">이번주 인기 게시물</h2>
+        <TopPosts posts={postsWithCategoryNames} userId={currentUser?.id ?? null} />
+      </div>
+      <hr className="my-4 mx-auto border-gray-200 w-full" />
       <AdFixedPage />
       <h2 className="text-xl font-bold mt-8 ">All Posts</h2>
+
       <DolphinBasic width={100} color="text-red-300" />
       <DolphinBasic width={100} color="text-blue-300" />
       <DolphinBasic width={100} color="text-violet-300" />

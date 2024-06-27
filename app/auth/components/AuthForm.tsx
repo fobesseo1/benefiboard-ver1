@@ -8,11 +8,11 @@ import GoogleButton from './OAuthForm_Google';
 
 export function AuthForm() {
   return (
-    <div className="w-full space-y-5">
-      <Tabs defaultValue="signin" className="w-full">
+    <div className="w-full space-y-6">
+      <Tabs defaultValue="signin" className="w-full space-y-6">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="signin">SignIn</TabsTrigger>
-          <TabsTrigger value="register">Register</TabsTrigger>
+          <TabsTrigger value="signin">로그인</TabsTrigger>
+          <TabsTrigger value="register">회원가입</TabsTrigger>
         </TabsList>
         <TabsContent value="signin">
           <SignInForm />
@@ -21,8 +21,11 @@ export function AuthForm() {
           <RegisterForm />
         </TabsContent>
       </Tabs>
-      <GithubButton />
-      <GoogleButton />
+      <hr />
+      <div className="flex flex-col gap-4">
+        <GoogleButton />
+        <GithubButton />
+      </div>
     </div>
   );
 }

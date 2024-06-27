@@ -1,3 +1,5 @@
+//app>post>_action>category.ts
+
 export const categories = [
   { id: '37f26765-90c4-49e1-88ba-b2486b3632f7', name: '행복의정원' },
   { id: 'ce7a39ac-f403-4750-b640-890bbcdf0dd3', name: '마음의쉼터' },
@@ -12,6 +14,7 @@ export const categories = [
   { id: '62fbcfa4-4be6-4d81-ae5a-d12fae9f60fc', name: '이슈의전쟁터' },
   { id: 'b883bfae-7d09-4a82-bd12-83d6ffd1644e', name: '스포츠아레나' },
   { id: 'f8f66553-ef1d-4ef1-bbab-17d4ebddb601', name: '행운의숫자' },
+  { id: null, name: '아무거나' },
   {
     id: 'ea948e43-096a-4fc3-aced-0db2d9665d39',
     name: '성공경험',

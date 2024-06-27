@@ -18,6 +18,8 @@ export default async function GoodluckPage() {
   }
 
   const postId = null;
+  const author_id = null;
+  const pagePath = 'goodluck';
 
   return (
     <div className="flex flex-col items-center pb-16">
@@ -25,7 +27,13 @@ export default async function GoodluckPage() {
       {/* AdAlert 컴포넌트를 추가 */}
       {currentUser && roundData && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-          <AdAlert userId={currentUser.id} postId={postId} initialRoundData={roundData} />
+          <AdAlert
+            userId={currentUser.id}
+            postId={postId}
+            initialRoundData={roundData}
+            author_id={author_id}
+            pagePath={pagePath}
+          />
         </div>
       )}
     </div>
