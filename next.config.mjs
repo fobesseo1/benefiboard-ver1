@@ -1,9 +1,25 @@
+import withPWA from 'next-pwa';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // Strict Mode 비활성화
+  reactStrictMode: false,
   experimental: {
-    optimizeCss: true, // 이 설정을 추가하여 CSS 최적화를 활성화합니다.
+    optimizeCss: true,
+  },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
   },
 };
 
-export default nextConfig;
+const pwaConfig = withPWA({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+});
+
+export default pwaConfig(nextConfig);

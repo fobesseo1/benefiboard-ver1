@@ -54,7 +54,9 @@ export function AdContentCard({
           자세히 확인하고 포인트 받기
         </Button>
         <div className="flex w-full justify-start ">
-          <Button variant="outline">광고닫기</Button>
+          <Button variant="outline" onClick={handleAdClose}>
+            광고닫기
+          </Button>
         </div>
       </CardFooter>
     </Card>

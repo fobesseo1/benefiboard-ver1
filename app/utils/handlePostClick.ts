@@ -1,4 +1,4 @@
-'use client';
+/* 'use client';
 // utils/handlePostClick.ts
 import { useRouter } from 'next/navigation';
 
@@ -16,4 +16,4 @@ export const handlePostClick = (postId: string, userId: string | null) => {
   // 페이지 이동 추가
   const detailUrl = `/post/detail/${postId}`;
   router.push(detailUrl);
-};
+}; */

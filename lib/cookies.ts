@@ -1,4 +1,4 @@
-/* import { revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export type CurrentUser = {
@@ -51,9 +51,8 @@ export function getCurrentUserInfo() {
 
   return userInfo;
 }
- */
 
-import { headers } from 'next/headers';
+/* import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
 export type CurrentUser = {
@@ -100,4 +99,4 @@ export function getCurrentUserInfo() {
   };
 
   return userInfo;
-}
+} */
