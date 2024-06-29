@@ -1,7 +1,7 @@
-// components/PostForm.tsx
+// app>post>_components/PostForm.tsx
 'use client';
 
-import { useState, useEffect, FormEvent, ChangeEvent, useRef } from 'react';
+import { useState, FormEvent, ChangeEvent, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +35,7 @@ export default function PostForm({
   const [childCategoryId, setChildCategoryId] = useState<string>('');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
+  const [contentType, setContentType] = useState<string>('text'); // 추가: 콘텐츠 타입 상태
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isValidCategoryId = (id: string) => {
@@ -48,6 +49,10 @@ export default function PostForm({
 
   const handleChildCategoryChange = (value: string) => {
     setChildCategoryId(value);
+  };
+
+  const handleContentTypeChange = (value: string) => {
+    setContentType(value); // 추가: 콘텐츠 타입 변경
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +119,9 @@ export default function PostForm({
     );
     formData.append('child_category_id', isValidCategoryId(childCategoryId) ? childCategoryId : '');
 
+    // 추가: 콘텐츠 타입 추가
+    formData.append('content_type', contentType);
+
     console.log('Form Data:', Object.fromEntries(formData)); // 디버깅용
 
     await createPost(formData);
@@ -131,10 +139,27 @@ export default function PostForm({
           <Label htmlFor="title">Title</Label>
           <Input type="text" name="title" id="title" required />
         </div>
+        {/* 콘텐츠 타입 선택 */}
+        <div className="space-y-2">
+          <Label htmlFor="contentType">Content Type</Label>
+          <Select value={contentType} onValueChange={handleContentTypeChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Content Type" />
+            </SelectTrigger>
+            <SelectContent className="max-h-48 overflow-y-auto">
+              <SelectItem value="text">Text</SelectItem>
+              <SelectItem value="html">HTML</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         {/* 내용 */}
         <div className="space-y-2">
           <Label htmlFor="content">Content</Label>
-          <Textarea name="content" id="content" required />
+          {contentType === 'text' ? (
+            <Textarea name="content" id="content" required />
+          ) : (
+            <Textarea name="content" id="content" required />
+          )}
         </div>
         {/* 카테고리1차 */}
         <div className="space-y-2">

@@ -66,16 +66,20 @@ export default function AdAlert({
   );
 
   const handleAdClick = useCallback(async () => {
+    const readerClickPoints = Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 300~600 사이의 랜덤
+    setAdClickPoints(readerClickPoints);
+
     if (userId) {
-      const readerClickPoints = Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 300~600 사이의 랜덤
-      setAdClickPoints(readerClickPoints);
       await addUserClickPoints(userId, readerClickPoints);
-      setShowPointAnimationClick(true);
     }
+
+    setShowPointAnimationClick(true);
+
     if (author_id) {
       const writerPoints = 500; // 작성자에게 500 포인트 추가
       await addWritingClickPoints(author_id);
     }
+
     setTimeout(() => {
       window.open(AD_URL, '_blank'); // 새 창에서 링크 열기
       setShowAd(false); // 광고 닫기
@@ -198,9 +202,10 @@ export default function AdAlert({
               />
             </div>
           </AlertDialog>
-          {/* 광고 포인트 애니메이션 */}
+          {/* 광고 클릭 포인트 애니메이션 */}
           {showPointAnimationClick && (
             <PointAnimationClick
+              userId={userId}
               points={adClickPoints}
               onAnimationEnd={(points: number) => handleAnimationEnd(points)}
             />

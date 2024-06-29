@@ -1,6 +1,6 @@
 import { postformatDate } from '@/lib/utils/formDate';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
-import AuthorHoverCard from './AuthorHoverCard';
+import AuthorProfileCard from './AuthProfileCard';
 
 const PostHeader = ({
   title,
@@ -28,7 +28,7 @@ const PostHeader = ({
   <div className="flex flex-col justify-center gap-2 py-2 ">
     {/* 작성자 정보 */}
     <div className="flex items-center author">
-      <AuthorHoverCard
+      <AuthorProfileCard
         author_name={author_name || author_email || 'unknown'}
         author_avatar_url={author_avatar_url || '/money-3d-main.png'}
         author_id={author_id}
@@ -37,18 +37,18 @@ const PostHeader = ({
           <img
             src={author_avatar_url || '/money-3d-main.png'}
             alt=""
-            className="w-12 h-12 ring-1 rounded-full object-cover"
+            className="w-12 h-12 ring-1 rounded-full object-cover cursor-pointer"
           />
         }
       />
       <div className="flex-1 h-10 ml-2 bg-white flex flex-col justify-center ">
-        <AuthorHoverCard
+        <AuthorProfileCard
           author_name={author_name || author_email || 'unknown'}
           author_avatar_url={author_avatar_url || '/money-3d-main.png'}
           author_id={author_id}
           point={point || 0}
           triggerElement={
-            <p className="text-sm text-gray-600 font-bold leading-tight tracking-tighter line-clamp-1">
+            <p className="text-sm text-gray-600 font-bold leading-tight tracking-tighter line-clamp-1 cursor-pointer">
               {author_name || author_email || 'unknown'}
             </p>
           }

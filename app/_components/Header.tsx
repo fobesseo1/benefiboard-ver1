@@ -1,5 +1,3 @@
-//app>_components>Header.tsx
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -7,21 +5,9 @@ import { BiArrowBack } from 'react-icons/bi';
 import { RxHamburgerMenu } from 'react-icons/rx';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import UserHoverCard from './UserHoverCard';
+import CommonSheet from './CommonSheet';
+import UserProfileCard from './UserProfileCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import { childCategoriesArray, parentCategoriesArray } from '../post/_action/category';
 
 interface CurrentUser {
   id: string;
@@ -34,9 +20,6 @@ interface CurrentUser {
 const Header = () => {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-
-  const parentCategories = parentCategoriesArray;
-  const childCategories = childCategoriesArray;
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -61,112 +44,54 @@ const Header = () => {
   };
 
   return (
-    /* top위치 status에 따라 조정필요 */
-    <header className="fixed top-0  left-0 z-50 w-screen h-16 flex items-center justify-between px-6 border-b-[1px] border-gray-200 bg-white lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:w-[948px]">
-      <BiArrowBack size={24} onClick={handleBackClick} className="cursor-pointer" />
-
-      <img
-        src="/logo-benefiboard.svg"
-        alt=""
-        className="absolute left-1/2 transform -translate-x-1/2"
-      />
-
-      <div className="flex items-center gap-3">
-        {currentUser ? (
-          <UserHoverCard
-            avatar_url={currentUser.avatar_url}
-            username={currentUser.username}
-            email={currentUser.email}
-            user_id={currentUser.id}
-            point={currentUser.current_points}
-            triggerElement={
-              <img
-                src={currentUser.avatar_url || '/money-3d-main.png'} // 아바타 URL을 사용하거나 기본 아바타 사용
-                alt="User Avatar"
-                className="w-8 h-8 rounded-full cursor-pointer"
+    <div className="fixed top-0 left-0 z-50 w-full">
+      <header className="h-16 bg-white flex items-center justify-between px-6 border-b-[1px] border-gray-200  lg:w-[948px] mx-auto">
+        <BiArrowBack size={24} onClick={handleBackClick} className="cursor-pointer" />
+        <img
+          src="/logo-benefiboard.svg"
+          alt=""
+          className="absolute left-1/2 transform -translate-x-1/2"
+        />
+        <div className="flex items-center gap-2 lg:gap-4 ">
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <UserProfileCard
+                avatar_url={currentUser.avatar_url}
+                username={currentUser.username}
+                email={currentUser.email}
+                user_id={currentUser.id}
+                point={currentUser.current_points}
+                triggerElement={
+                  <img
+                    src={currentUser.avatar_url || '/money-3d-main.png'}
+                    alt="User Avatar"
+                    className="w-8 h-8 rounded-full cursor-pointer"
+                  />
+                }
               />
+              <div className="hidden lg:block">
+                <p className="text-sm font-semibold">{currentUser?.username}</p>
+                <p className="text-sm text-gray-500">포인트: {currentUser?.current_points}</p>
+              </div>
+            </div>
+          ) : (
+            <Link href="/auth">
+              <p className="text-xs tracking-tighter border-[1px] p-[2px] border-gray-200">
+                로그인
+              </p>
+            </Link>
+          )}
+          <CommonSheet
+            currentUser={currentUser}
+            triggerElement={
+              <div>
+                <RxHamburgerMenu size={24} />
+              </div>
             }
           />
-        ) : (
-          <Link href="/auth">
-            <p className="text-xs tracking-tighter border-[1px] p-[2px] border-gray-200">로그인</p>
-          </Link>
-        )}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button>
-              <RxHamburgerMenu size={24} />
-            </button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>전체메뉴</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col py-4  gap-4">
-              <div className="board">
-                <h2 className="text-lg font-semibold">게시판</h2>
-                <div className="grid grid-cols-2 gap-1">
-                  {parentCategories.map((category) => (
-                    <SheetClose asChild key={category.id}>
-                      <Link href={`/post/${category.id}`}>
-                        <p className="font-semibold pl-2">- {category.name}</p>
-                      </Link>
-                    </SheetClose>
-                  ))}
-                </div>
-              </div>
-              <hr />
-              <div className="lucky">
-                <h2 className="text-lg font-semibold">행운의 숫자</h2>
-                <div className="flex flex-col gap-1">
-                  <SheetClose asChild>
-                    <Link href={`/goodluck`}>
-                      <p className="font-semibold pl-2">- 로또</p>
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href={`/goodluck`}>
-                      <p className="font-semibold pl-2">- 연금복권</p>
-                    </Link>
-                  </SheetClose>
-                </div>
-              </div>
-              <hr />
-              {currentUser?.id && (
-                <div className="profile">
-                  <h2 className="text-lg font-semibold">프로필</h2>
-                  <div className="flex flex-col gap-1">
-                    <SheetClose asChild>
-                      <Link href={`/profile/${currentUser?.id}`}>
-                        <p className="font-semibold pl-2">- 나의 프로필 페이지</p>
-                      </Link>
-                    </SheetClose>
-                  </div>
-                </div>
-              )}
-              <hr />
-              {currentUser?.id && (
-                <div className="profile">
-                  <h2 className="text-lg font-semibold">메세지</h2>
-                  <div className="flex flex-col gap-1">
-                    <SheetClose asChild>
-                      <Link href={`/message`}>
-                        <p className="font-semibold pl-2">- 나의 메세지</p>
-                      </Link>
-                    </SheetClose>
-                  </div>
-                </div>
-              )}
-            </div>
-            {/* <SheetFooter>
-              <SheetClose asChild>
-                <Button type="submit">Save changes</Button>
-              </SheetClose>
-            </SheetFooter> */}
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
+        </div>
+      </header>
+    </div>
   );
 };
 

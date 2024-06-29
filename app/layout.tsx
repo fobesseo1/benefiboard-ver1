@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import Status from './_components/Status';
@@ -19,13 +19,21 @@ export const cls = (...classnames: string[]) => {
   return classnames.join(' ');
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Also supported by less commonly used
+  // interactiveWidget: 'resizes-visual',
+};
+
 export const metadata: Metadata = {
   title: 'Benefiboard',
   description: 'Your benefiboard application description',
   manifest: '/manifest.json',
-  themeColor: '#000000',
   icons: {
-    icon: '/logo-benefiboard.svg',
+    icon: '/logo-square.svg',
   },
 };
 
@@ -38,7 +46,11 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#000000" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />{' '}
+        {/* 이 부분은 유지합니다 */}
         <link rel="icon" href="/logo-benefiboard.svg" />
       </head>
       <body className={notoSansKR.className}>

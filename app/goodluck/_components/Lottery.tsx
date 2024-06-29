@@ -120,6 +120,9 @@ export default function LotteryComponent() {
         로또 번호 추첨하기
       </Button>
 
+      {/* 설명 */}
+      <p className="text-xs text-gray-600 mt-2">버튼을 누를때마다 번호가 추가 생성됩니다</p>
+
       {/* 결과 */}
       <div className="mt-12 ease-in-out duration-300 ">
         {/* <h3>로또 번호 모음</h3> */}

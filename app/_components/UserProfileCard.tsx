@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Card, CardContent } from '@/components/ui/card';
 import { AiOutlineClose } from 'react-icons/ai';
 import Link from 'next/link';
 
-interface UserHoverCardProps {
+interface UserProfileCardProps {
   avatar_url: string | null;
   username: string | null;
   email: string | null;
@@ -14,14 +14,14 @@ interface UserHoverCardProps {
   point: number;
 }
 
-export default function UserHoverCard({
+export default function UserProfileCard({
   avatar_url,
   username,
   email,
   user_id,
   point,
   triggerElement,
-}: UserHoverCardProps) {
+}: UserProfileCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleTouch = () => {
@@ -33,19 +33,19 @@ export default function UserHoverCard({
   };
 
   return (
-    <HoverCard open={isOpen} onOpenChange={setIsOpen}>
-      <HoverCardTrigger asChild>
-        <div onTouchStart={handleTouch}>{triggerElement}</div>
-      </HoverCardTrigger>
+    <div>
+      <div onTouchStart={handleTouch} onClick={handleTouch}>
+        {triggerElement}
+      </div>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="relative w-80 bg-white shadow-lg p-4 rounded-lg">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
+          <Card className="relative w-80 bg-white shadow-lg p-4 rounded-lg">
             <div className="absolute top-2 right-2">
               <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
                 <AiOutlineClose size={20} />
               </button>
             </div>
-            <div className="flex flex-col justify-between space-y-4">
+            <CardContent className="flex flex-col justify-between space-y-4">
               <img
                 src={avatar_url || '/money-3d-main.png'}
                 alt="avatar_image"
@@ -60,10 +60,10 @@ export default function UserHoverCard({
               <Link href={`/profile/${user_id}`}>
                 <p className="text-sm font-semibold">더보기...</p>
               </Link>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
-    </HoverCard>
+    </div>
   );
 }

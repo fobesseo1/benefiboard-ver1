@@ -1,4 +1,3 @@
-// components/ExternalLinks.tsx
 'use client';
 
 import Link from 'next/link';
@@ -41,17 +40,14 @@ export default function ExternalLinks({ linkUrl1, linkUrl2 }: ExternalLinksProps
   }, [linkUrl1, linkUrl2]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 lg:max-w-[948px] lg:mx-auto">
       {iframeSrc1 && (
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col mb-4 w-full">
           <div
-            className=""
+            className="w-full"
             style={{
-              width: '100vw',
               paddingTop: isYouTube1 ? '56.25%' : '0',
               height: isYouTube1 ? '0' : '640px',
-              marginLeft: '-50vw',
-              left: '50%',
               position: 'relative',
             }}
           >
@@ -70,10 +66,7 @@ export default function ExternalLinks({ linkUrl1, linkUrl2 }: ExternalLinksProps
               sandbox="allow-scripts allow-same-origin allow-presentation"
             ></iframe>
           </div>
-          <div
-            className="flex flex-col gap-1 justify-center py-4 pl-2  w-screen border-y-[1px] border-gray-200"
-            style={{ marginLeft: '-50vw', left: '50%', position: 'relative' }}
-          >
+          <div className="flex flex-col gap-1 justify-center py-4 pl-2 w-full border-y-[1px] border-gray-200">
             <h2 className="font-semibold">
               외부링크 1.{' '}
               <span className="text-xs font-light tracking-tighter pl-1">
@@ -90,15 +83,12 @@ export default function ExternalLinks({ linkUrl1, linkUrl2 }: ExternalLinksProps
       )}
 
       {iframeSrc2 && (
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col mb-4 w-full">
           <div
-            className=""
+            className="w-full"
             style={{
-              width: '100vw',
               paddingTop: isYouTube2 ? '56.25%' : '0',
               height: isYouTube2 ? '0' : '640px',
-              marginLeft: '-50vw',
-              left: '50%',
               position: 'relative',
             }}
           >
@@ -117,10 +107,7 @@ export default function ExternalLinks({ linkUrl1, linkUrl2 }: ExternalLinksProps
               sandbox="allow-scripts allow-same-origin allow-presentation"
             ></iframe>
           </div>
-          <div
-            className="flex flex-col gap-1 justify-center py-4 pl-2 w-screen  border-y-[1px]  border-gray-200"
-            style={{ marginLeft: '-50vw', left: '50%', position: 'relative' }}
-          >
+          <div className="flex flex-col gap-1 justify-center py-4 pl-2 w-full border-y-[1px] border-gray-200">
             <h2 className="font-semibold">
               외부링크 2.{' '}
               <span className="text-xs font-light tracking-tighter pl-1">

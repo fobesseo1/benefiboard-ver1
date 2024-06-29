@@ -81,7 +81,7 @@ export default function TopPosts({ posts, userId }: TopPostsProps) {
                     {listformatDate(post.created_at) || 'No time'}
                   </p>
                 </div>
-                <div className="flex-1 pt-2 pb-1 cursor-pointer">
+                <div className="flex-1 pt-2 pb-2 cursor-pointer">
                   <p
                     className={`font-semibold line-clamp-1 leading-tight tracking-tighter ${
                       isPostRead(post.id) ? 'text-gray-400' : ''

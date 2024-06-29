@@ -1,3 +1,5 @@
+// app>post>_action>post.ts
+
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
@@ -11,6 +13,7 @@ export async function createPost(formData: FormData) {
   // FormData에서 개별 값 추출
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
+  const content_type = formData.get('content_type') as string; // 추가: 콘텐츠 타입
   const user_id = formData.get('user_id') as string;
   const user_name = formData.get('user_name') as string;
   const user_avatar_url = formData.get('user_avatar_url') as string;
@@ -39,6 +42,7 @@ export async function createPost(formData: FormData) {
   const post = {
     title: title,
     content: content,
+    content_type: content_type, // 추가: 콘텐츠 타입
     author_id: user_id,
     author_name: user_name,
     author_avatar_url: user_avatar_url,

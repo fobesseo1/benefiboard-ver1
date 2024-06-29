@@ -67,15 +67,15 @@ export function PointAnimation({ userId, initialRoundData, onAnimationEnd }: Poi
         <div
           className={`fixed flex flex-col justify-center items-center gap-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-move-up ${
             randomNumber === 0 ? 'bg-gray-400' : randomNumber >= 10 ? 'bg-blue-600' : 'bg-red-600'
-          } rounded-full p-4 w-52 h-52 aspect-square`}
+          } rounded-full p-2 w-56 h-56 aspect-square`}
         >
           <p className="text-6xl font-bold text-white">{randomNumber}</p>
           <p className="text-2xl text-white text-center">
             {randomNumber === 0 ? (
               <>
                 이번엔 꽝
-                <br />
-                다음기회를
+                {/* <br />
+                다음기회를 */}
               </>
             ) : randomNumber >= 10 ? (
               '빅포인트!!'
@@ -84,9 +84,17 @@ export function PointAnimation({ userId, initialRoundData, onAnimationEnd }: Poi
             )}
           </p>
           {userId ? (
-            <p className="text-xl text-white">포인트가 적립되었습니다!</p>
+            <article className="text-pretty">
+              <p className="text-lg font-semibold text-center text-white leading-tight">
+                포인트가 <br /> 적립되었습니다!
+              </p>
+            </article>
           ) : (
-            <p className="text-xl text-white">로그인하면 포인트가 적립될텐데...</p>
+            <article className="text-pretty ">
+              <p className="text-lg font-semibold text-center text-white leading-tight">
+                로그인하면 <br /> 포인트가 <br /> 적립될텐데...
+              </p>
+            </article>
           )}
         </div>
       )}

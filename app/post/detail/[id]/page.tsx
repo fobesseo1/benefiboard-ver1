@@ -51,7 +51,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
     typeof window !== 'undefined' && localStorage.getItem(`post_${id}_animation_executed`);
 
   return (
-    <div className="relative mx-4">
+    <div className="relative mx-4 lg:w-[948px] lg:mx-auto">
       <Breadcrumbs category={post?.category} />
       <Suspense fallback={<div>Loading Post Header...</div>}>
         <PostHeader
@@ -76,7 +76,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
         </div>
       ) : null}
       <Suspense fallback={<div>Loading Post Content...</div>}>
-        <PostContent content={post?.content} />
+        <PostContent content={post?.content} contentType={post?.content_type} />
       </Suspense>
       <Suspense fallback={<div>Loading External Links...</div>}>
         <ExternalLinks linkUrl1={post?.linkUrl1} linkUrl2={post?.linkUrl2} />

@@ -135,8 +135,9 @@ export default function InfiniteScrollPosts({
                 className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200 lg:hidden"
                 onClick={() => prefetchPostDetail(post.id)}
               >
+                {/* 카테고리와 작성시간 */}
                 <div className="flex justify-between items-center">
-                  <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden">
+                  <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden items-center">
                     <div className="flex">
                       <p className="text-xs leading-tight tracking-tight text-gray-600">
                         {post.parent_category_name || '아무거나'} &gt;
@@ -150,8 +151,9 @@ export default function InfiniteScrollPosts({
                     {listformatDate(post.created_at) || 'No time'}
                   </p>
                 </div>
+                {/* 포스트 제목 */}
                 <div
-                  className="flex-1 pt-2 pb-1 cursor-pointer"
+                  className="flex-1 pt-2 pb-2 cursor-pointer"
                   onClick={() => handlePostClick(post.id)}
                 >
                   <p
@@ -162,9 +164,13 @@ export default function InfiniteScrollPosts({
                     {post.title}
                   </p>
                 </div>
+                {/* 작성자와 여러가지 */}
                 <div className="flex gap-4 items-center overflow-hidden">
                   <Link href={profileUrl} className="overflow-hidden flex-1">
-                    <p className="text-xs font-semibold leading-tight tracking-tight text-gray-600 truncate">
+                    <p
+                      className={`text-xs font-semibold leading-tight tracking-tight
+                     truncate ${isPostRead(post.id) ? 'text-gray-400' : ''}`}
+                    >
                       {post.author_name || post.author_email || 'unknown'}
                     </p>
                   </Link>
@@ -190,6 +196,7 @@ export default function InfiniteScrollPosts({
                   </div>
                 </div>
               </div>
+
               {/* lg view */}
               <div
                 className="hidden lg:flex w-[948px] mx-auto gap-4 items-center justify-between py-2 bg-white border-b-[1px] border-gray-200"
