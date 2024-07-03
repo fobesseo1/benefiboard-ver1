@@ -1,8 +1,7 @@
-// _components/Onboarding.tsx
+// app/_components/Onboarding.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import styles from '../_css-module/Onboarding.module.css';
 
@@ -31,9 +30,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div
-      className={`${styles.onboardingContainer} flex flex-col items-center h-[calc(100vh-146px)] justify-center text-center mx-auto lg:w-[948px]`}
-    >
+    <div className={`${styles.onboardingContainer} h-screen w-screen`}>
       <div className={`${styles.logo} ${step >= 1 ? styles.visible : ''}`}>
         <Image src="/logo-benefiboard-white.svg" alt="Benefiboard Logo" width={240} height={36} />
       </div>
@@ -45,11 +42,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <div className={styles.feature}>짧은 광고</div>
         <div className={styles.feature}>기부 옵션</div>
       </div>
-      {/* <Link href="/home">
-        <button className={`${styles.getStarted} ${step >= 4 ? styles.visible : ''}`}>
-          Get Started
-        </button>
-      </Link> */}
     </div>
   );
 };

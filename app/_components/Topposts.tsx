@@ -100,7 +100,7 @@ export default function TopPosts({ posts, userId }: TopPostsProps) {
                     <div className="flex items-center gap-[2px]">
                       <SlHeart size={12} color="gray" />
                       <p className="text-xs leading-tight tracking-tight text-gray-600">
-                        {post.views || '0'}
+                        {post.likes || '0'}
                       </p>
                     </div>
                     <div className="flex items-center gap-[2px]">

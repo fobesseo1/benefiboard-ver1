@@ -1,3 +1,4 @@
+//app>post>_action>adPointSupabase.ts
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';

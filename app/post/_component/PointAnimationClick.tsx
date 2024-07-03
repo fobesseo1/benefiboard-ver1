@@ -1,3 +1,4 @@
+//app>post>_components>PointAnimationClick.tsx
 'use client';
 
 import { useEffect, useState } from 'react';

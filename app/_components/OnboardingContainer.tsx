@@ -8,6 +8,7 @@ import Link from 'next/link';
 import AdFixedPage from './Ad_Bottom';
 import { CurrentUser } from '@/lib/cookies';
 import { PostType } from '../post/types';
+import { useOnboarding } from '../_context/OnboardingContext';
 
 interface OnboardingContainerProps {
   postsWithCategoryNames: PostType[];
@@ -20,23 +21,29 @@ export const OnboardingContainer = ({
 }: OnboardingContainerProps) => {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { setIsOnboarding } = useOnboarding();
 
   useEffect(() => {
+    // 온보딩 시작
+    setIsOnboarding(true);
+
     // 로컬 스토리지에서 온보딩 완료 시간을 확인합니다.
     const onboardingCompleteTime = localStorage.getItem('onboardingCompleteTime');
     if (onboardingCompleteTime) {
       const timeElapsed = Date.now() - parseInt(onboardingCompleteTime, 10);
-      if (timeElapsed < 100000) {
-        // 5분 = 600,000 밀리초
+      if (timeElapsed < 600000) {
+        // 10분 = 600,000 밀리초
         setOnboardingComplete(true);
+        setIsOnboarding(false);
       }
     }
     setLoading(false); // 로딩 상태를 해제합니다.
-  }, []);
+  }, [setIsOnboarding]);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('onboardingCompleteTime', Date.now().toString());
     setOnboardingComplete(true);
+    setIsOnboarding(false); // 온보딩 완료 시 상태 변경
   };
 
   if (loading) {
@@ -89,8 +96,10 @@ export const OnboardingContainer = ({
       </div>
 
       <hr className="my-4 mx-auto border-gray-200 w-full" />
-
-      <AdFixedPage />
+      {/* 광고배너 */}
+      <div className="w-full">
+        <AdFixedPage />
+      </div>
     </div>
   );
 };

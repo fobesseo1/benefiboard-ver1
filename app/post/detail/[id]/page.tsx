@@ -1,3 +1,5 @@
+//app>post>detaail>[id]>page.tsx
+
 import { getCurrentUserInfo } from '@/lib/cookies';
 import { Suspense, lazy } from 'react';
 import Breadcrumbs from '../../_component/Breadcrumbs';
@@ -19,7 +21,9 @@ export default async function PostDetailPage({ params }: { params: { id: string 
   const supabase = await createSupabaseServerClient();
   const { data: post, error } = await supabase.from('post').select('*').eq('id', id).single();
   const currentUser = getCurrentUserInfo();
-  console.log('currentUser[id]', currentUser);
+
+  //console.log('currentUser[id]', currentUser);
+  //console.log('postDetail', post);
 
   if (error) {
     return <div>Error loading post: {error.message}</div>;

@@ -1,3 +1,4 @@
+//lib/cookies.ts
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
@@ -51,52 +52,3 @@ export function getCurrentUserInfo() {
 
   return userInfo;
 }
-
-/* import { headers } from 'next/headers';
-import { revalidatePath } from 'next/cache';
-
-export type CurrentUser = {
-  current_points: number;
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-};
-
-export function getcurrentUserFromCookies(): CurrentUser | null {
-  const headersList = headers();
-  const currentUserHeader = headersList.get('x-current-user');
-
-  if (currentUserHeader) {
-    try {
-      revalidatePath('/');
-      return JSON.parse(currentUserHeader);
-    } catch (error) {
-      console.error('currentUser 헤더 파싱 오류:', error);
-      return null;
-    }
-  } else {
-    revalidatePath('/');
-    console.log('current user 헤더 없음');
-  }
-  return null;
-}
-
-export function getCurrentUserInfo() {
-  const currentUser = getcurrentUserFromCookies();
-
-  if (!currentUser) {
-    return null;
-  }
-
-  const userInfo = {
-    id: currentUser.id ?? '',
-    username: currentUser.username ?? '',
-    email: currentUser.email ?? '',
-    avatar_url: currentUser.avatar_url ?? '',
-    point: currentUser.current_points ?? '',
-    current_points: currentUser.current_points ?? '',
-  };
-
-  return userInfo;
-} */

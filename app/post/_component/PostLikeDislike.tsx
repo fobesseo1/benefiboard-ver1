@@ -20,7 +20,7 @@ export default function PostLikeDislike({ post_id, user_id }: Props) {
         setDislikes(dislikes);
 
         // 현재 사용자가 좋아요를 눌렀는지 확인
-        if (likeUsers.some((likeUser) => likeUser.user_id === user_id)) {
+        if (likeUsers.some((likeUser) => likeUser.user_id === user_id && likeUser.liked === true)) {
           setUserLike(true);
         } else if (
           likeUsers.some((likeUser) => likeUser.user_id === user_id && likeUser.liked === false)
@@ -54,10 +54,7 @@ export default function PostLikeDislike({ post_id, user_id }: Props) {
       } else {
         setLikes((prev) => prev - 1);
       }
-      if (newLikeState !== null) {
-        // <== 조건문 추가
-        await toggleLike(post_id, user_id, newLikeState);
-      }
+      await toggleLike(post_id, user_id, newLikeState);
     } catch (error) {
       console.error('Error updating like:', error);
     }
@@ -80,10 +77,7 @@ export default function PostLikeDislike({ post_id, user_id }: Props) {
       } else {
         setDislikes((prev) => prev - 1);
       }
-      if (newDislikeState !== null) {
-        // <== 조건문 추가
-        await toggleLike(post_id, user_id, newDislikeState);
-      }
+      await toggleLike(post_id, user_id, newDislikeState);
     } catch (error) {
       console.error('Error updating dislike:', error);
     }

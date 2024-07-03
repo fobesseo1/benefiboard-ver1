@@ -1,3 +1,4 @@
+//app>post>_action>adPoint.ts
 /* 1원 = 20point */
 
 export const calculatePoints = (): number[] => {

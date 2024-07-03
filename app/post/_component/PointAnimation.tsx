@@ -1,3 +1,4 @@
+//app>post>_components>PointAnimationClick.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -48,7 +49,7 @@ export function PointAnimation({ userId, initialRoundData, onAnimationEnd }: Poi
         if (!animationExecuted) {
           setAnimationExecuted(true);
           if (onAnimationEnd) {
-            onAnimationEnd(number);
+            onAnimationEnd(number); // 포인트가 3 이상인 경우에만 콜백 호출
           }
         }
       }, 2000);

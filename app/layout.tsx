@@ -1,9 +1,11 @@
+// app/layout.tsx
 import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import Status from './_components/Status';
-import Header from './_components/Header';
-import Footer from './_components/Footer';
+import { OnboardingProvider } from './_context/OnboardingContext';
+import ClientLayout from './_components/ClientLayout';
+import { getcurrentUserFromCookies } from '@/lib/cookies';
 
 const inter = Inter({ subsets: ['latin'] });
 const poppins = Poppins({
@@ -24,8 +26,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  // Also supported by less commonly used
-  // interactiveWidget: 'resizes-visual',
 };
 
 export const metadata: Metadata = {
@@ -42,25 +42,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = getcurrentUserFromCookies();
+  console.log('layout currentUser', currentUser);
+
   return (
     <html lang="ko">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-        />{' '}
-        {/* 이 부분은 유지합니다 */}
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        />
         <link rel="icon" href="/logo-benefiboard.svg" />
       </head>
-      <body className={notoSansKR.className}>
-        <div className="max-w-[1280px] mx-auto">
-          <Header />
-          <main className="pt-16 pb-16 min-h-screen tracking-tight text-gray-800 leading-tight">
-            {children}
-          </main>
-          <Footer />
-        </div>
+      <body className={`${notoSansKR.className} flex flex-col min-h-screen`}>
+        <OnboardingProvider>
+          <ClientLayout currentUser={currentUser}>{children}</ClientLayout>
+        </OnboardingProvider>
       </body>
     </html>
   );

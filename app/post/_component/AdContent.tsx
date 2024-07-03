@@ -1,3 +1,5 @@
+//app>post>_components>AdContent.tsx
+
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,30 +12,35 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
+import { useDrag } from '@/hooks/useDrag';
+
 interface AdContentCardProps {
   handleAdClick: () => void;
   handleAdClose: () => void;
-  onMouseDown: (e: React.MouseEvent) => void;
-  onMouseMove: (e: React.MouseEvent) => void;
-  onMouseUp: () => void;
-  onMouseLeave: () => void;
 }
 
-export function AdContentCard({
-  handleAdClick,
-  handleAdClose,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-  onMouseLeave,
-}: AdContentCardProps) {
+export function AdContentCard({ handleAdClick, handleAdClose }: AdContentCardProps) {
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    getTransformStyle,
+    isDragging,
+  } = useDrag(handleAdClose);
   return (
     <Card
-      className="w-[320px] lg:w-[600px]"
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseLeave}
+      className="w-[320px] lg:w-[400px] "
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <CardHeader className="tracking-tighter">
         <CardDescription>[광고]좌우로 드래그하면 사라져요~</CardDescription>

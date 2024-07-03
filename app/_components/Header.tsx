@@ -1,13 +1,13 @@
+// app/_components/Header.tsx
+
 'use client';
 
 import { useRouter } from 'next/navigation';
 import { BiArrowBack } from 'react-icons/bi';
 import { RxHamburgerMenu } from 'react-icons/rx';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import CommonSheet from './CommonSheet';
 import UserProfileCard from './UserProfileCard';
-import { Button } from '@/components/ui/button';
 
 interface CurrentUser {
   id: string;
@@ -17,23 +17,8 @@ interface CurrentUser {
   current_points: number;
 }
 
-const Header = () => {
+const Header = ({ currentUser }: { currentUser: CurrentUser | null }) => {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch('/api/user');
-        const userInfo = await response.json();
-        setCurrentUser(userInfo);
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-      }
-    };
-
-    fetchUserInfo();
-  }, []);
 
   const handleBackClick = () => {
     router.back();

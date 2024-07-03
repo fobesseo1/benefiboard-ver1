@@ -9,7 +9,6 @@ import PostActions from './PostActions';
 import Comments from './Comments';
 import CommentDialog from './CommentDialog';
 import Advertisement from './Advertisement';
-//import { PointAnimation } from './PointAnimation';
 import { incrementViews } from '../_action/incrementViews';
 import { deletePostById } from '../_action/post';
 import {
@@ -19,15 +18,14 @@ import {
   deleteComment,
 } from '../_action/comments';
 import { CurrentUser } from '@/lib/cookies';
-import { EmojiYay } from '@/app/_emoji-gather/emoji-gather';
 
 interface Comment {
   id: number;
   author: string;
   content: string;
   user_id: string;
-  parent_id: number | null; // Add parent_id here
-  children?: Comment[]; // Optional, to handle nested comments
+  parent_id: number | null;
+  children?: Comment[];
 }
 
 interface PostDetailPageProps {
@@ -139,16 +137,12 @@ export default function ClientPostDetail({
 
   return (
     <div className="flex flex-col gap-4 ">
-      {/* 수정하기&삭제하기 */}
       {user_id === initialPost?.author_id && (
         <PostActions id={postId} onConfirmDelete={handleDeleteConfirm} />
       )}
       <hr />
-      {/* 좋아요 싫어요 */}
       <PostLikeDislike post_id={postId} user_id={user_id ?? ''} />
-      {/* 나누기 블록 */}
       <hr className="mb-8" />
-      {/* 댓글 */}
       <div className="flex flex-col pt-4 border-t-[1px] border-gray-200">
         <Comments
           comments={comments}
@@ -171,7 +165,6 @@ export default function ClientPostDetail({
       </div>
 
       <Advertisement onButtonClick={() => setShowNumber(true)} />
-      {/* <PointAnimation showNumber={showNumber} setShowNumber={setShowNumber} userId={user_id} /> */}
       <CommentDialog
         isOpen={isDialogOpen}
         onClose={() => {

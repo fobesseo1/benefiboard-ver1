@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (currentUser) {
-      //console.log('Setting currentUser cookie:', currentUser); // 로그 추가
+      console.log('Setting currentUser cookie:', currentUser); // 로그 추가
       response.cookies.set('currentUser', JSON.stringify(currentUser), {
         httpOnly: false, // 클라이언트에서도 접근 가능하도록 설정
         secure: process.env.NODE_ENV === 'production',

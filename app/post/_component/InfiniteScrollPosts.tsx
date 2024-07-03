@@ -1,3 +1,4 @@
+//app>post>_components>AdAlert.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -178,7 +179,7 @@ export default function InfiniteScrollPosts({
                     <div className="flex items-center gap-[2px]">
                       <SlHeart size={12} color="gray" />
                       <p className="text-xs leading-tight tracking-tight text-gray-600">
-                        {post.views || '0'}
+                        {post?.likes || '0'}
                       </p>
                     </div>
                     <div className="flex items-center gap-[2px]">
@@ -231,7 +232,7 @@ export default function InfiniteScrollPosts({
                   <div className="flex items-center gap-[2px]">
                     <SlHeart size={12} color="gray" />
                     <p className="text-xs leading-tight tracking-tight text-gray-600">
-                      {post.views || '0'}
+                      {post.likes || '0'}
                     </p>
                   </div>
                   <div className="flex items-center gap-[2px]">

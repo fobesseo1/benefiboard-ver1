@@ -10,4 +10,6 @@ export type PostType = {
   views?: number;
   comments?: number;
   title?: string;
+  likes?: number;
+  dislikes?: number;
 };

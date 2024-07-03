@@ -162,3 +162,37 @@
 .animate-slide-in-up {
   animation: slide-in-up 3s ease-out; /* 애니메이션 속성과 지속시간 설정 */
 }
+
+/* 배너광고 애니메이션 정의 */
+@keyframes slideAndHighlight {
+  0% {
+    transform: translateY(0);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  25% {
+    transform: translateY(16px);
+    border-color: pink;
+    box-shadow: 0 0 10px pink;
+  }
+  50% {
+    transform: translateY(-16px);
+    border-color: pink;
+    box-shadow: 0 0 10px pink;
+  }
+  75% {
+    transform: translateY(16px);
+    border-color: pink;
+    box-shadow: 0 0 10px pink;
+  }
+  100% {
+    transform: translateY(0);
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+/* 애니메이션 클래스 */
+.slide-highlight {
+  animation: slideAndHighlight 2s ease-in-out;
+}
