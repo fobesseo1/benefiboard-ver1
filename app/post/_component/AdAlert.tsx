@@ -1,70 +1,64 @@
-//app>post>_components>AdAlert.tsx
-'use client';
-
-import { useEffect, useState, useCallback } from 'react';
-import { AlertDialog } from '@/components/ui/alert-dialog'; // shadcn alert 컴포넌트
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { AlertDialog } from '@/components/ui/alert-dialog';
 import {
   addUserClickPoints,
   addUserPoints,
   addWritingClickPoints,
 } from '../_action/adPointSupabase';
 import { PointAnimation } from './PointAnimation';
-import { BiMove } from 'react-icons/bi'; // 드래그 아이콘 추가
 import PointAnimationClick from './PointAnimationClick';
 import { AdContentCard } from './AdContent';
 import { useDrag } from '@/hooks/useDrag';
 
-const SHOW_AD_FOR_READ_POSTS = false; // 설정 플래그 true이면 한번본 게시물도 광고 집행하면 포인트 재정립
-const AD_REPEAT_INTERVAL = 60 * 1000; // 광고 재실행 간격 (예: 1분)
-const AD_URL = 'https://www.google.com'; // 광고 페이지
-
-// 한국 시간으로 현재 시간을 계산하는 함수
-const getKoreanTimeNow = () => {
-  const now = new Date();
-  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
-  const koreanTimeOffset = 9 * 60 * 60 * 1000; // 한국 시간대는 UTC+9
-  return new Date(utcNow + koreanTimeOffset).getTime();
-};
+const AD_URL = 'https://www.google.com';
 
 export default function AdAlert({
   userId,
   postId,
   initialRoundData,
   author_id,
-  pagePath,
+  initialPoints,
 }: {
   userId: string | null;
   postId: string | null;
   initialRoundData: any;
   author_id: string | null;
-  pagePath: string | null;
+  initialPoints: number;
 }) {
   const [showAd, setShowAd] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
-  const [animationExecuted, setAnimationExecuted] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const [points, setPoints] = useState(initialPoints);
   const [adClickPoints, setAdClickPoints] = useState(0);
   const [showPointAnimationClick, setShowPointAnimationClick] = useState(false);
+  const [animationPoints, setAnimationPoints] = useState(0);
+  const animationExecutedRef = useRef(false);
 
-  const handleAdClose = () => setShowAd(false);
+  const handleAdClose = useCallback(() => {
+    setShowAd(false);
+  }, []);
 
-  const handleAnimationEnd = useCallback(
-    (points: number) => {
-      console.log('handleAnimationEnd called with points:', points);
-      if (points >= 3 && !animationExecuted) {
-        setShowAd(true);
-        setAnimationExecuted(true);
-        if (userId) {
-          addUserPoints(userId, points);
-          console.log('Adding points client:', points);
-        }
+  const { getTransformStyle, isDragging } = useDrag(handleAdClose);
+
+  const handleAnimationEnd = useCallback((newPoints: number) => {
+    if (animationExecutedRef.current) return;
+    animationExecutedRef.current = true;
+    setAnimationPoints(newPoints);
+  }, []);
+
+  useEffect(() => {
+    if (animationPoints > 0) {
+      setPoints((prevPoints) => prevPoints + animationPoints);
+      if (userId) {
+        addUserPoints(userId, animationPoints);
       }
-    },
-    [animationExecuted, userId]
-  );
+      if (animationPoints >= 3) {
+        setShowAd(true);
+      }
+    }
+  }, [animationPoints, userId]);
 
   const handleAdClick = useCallback(async () => {
-    const readerClickPoints = Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 300~600 사이의 랜덤
+    const readerClickPoints = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
     setAdClickPoints(readerClickPoints);
 
     if (userId) {
@@ -74,38 +68,19 @@ export default function AdAlert({
     setShowPointAnimationClick(true);
 
     if (author_id) {
-      const writerPoints = 500; // 작성자에게 500 포인트 추가
+      const writerPoints = 500;
       await addWritingClickPoints(author_id);
     }
 
     setTimeout(() => {
-      window.open(AD_URL, '_blank'); // 새 창에서 링크 열기
-      setShowAd(false); // 광고 닫기
-    }, 500); // 0.5초 지연
+      window.open(AD_URL, '_blank');
+      setShowAd(false);
+    }, 500);
   }, [userId, author_id]);
 
   useEffect(() => {
-    console.log('useEffect called for postId:', postId);
-    const lastAdTime = localStorage.getItem(`post_${postId}_animation_executed_time`);
-    const now = getKoreanTimeNow();
-    console.log('lastAdTime:', lastAdTime);
-    console.log('now:', now);
-
-    if (
-      SHOW_AD_FOR_READ_POSTS ||
-      !lastAdTime ||
-      now - parseInt(lastAdTime, 10) > AD_REPEAT_INTERVAL
-    ) {
-      setShowAnimation(true);
-      setTimeout(() => {
-        console.log('Setting animation executed in localStorage');
-        localStorage.setItem(`post_${postId}_animation_executed_time`, now.toString());
-        setAnimationExecuted(true);
-      }, 1500);
-    }
-  }, [postId, userId]);
-
-  const { getTransformStyle } = useDrag(handleAdClose);
+    setShowAnimation(true);
+  }, []);
 
   return (
     <>
@@ -113,6 +88,7 @@ export default function AdAlert({
         <PointAnimation
           userId={userId}
           initialRoundData={initialRoundData}
+          initialPoints={initialPoints}
           onAnimationEnd={handleAnimationEnd}
         />
       )}
@@ -121,22 +97,26 @@ export default function AdAlert({
           <div className="w-screen h-screen bg-black bg-opacity-75 z-80 relative" />
           <AlertDialog open={showAd} onOpenChange={handleAdClose}>
             <div
-              className={`fixed top-1/2 left-1/2 bg-white z-80 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-              style={{ transform: getTransformStyle() }}
+              className={`fixed inset-0 flex items-center justify-center z-50 ${
+                isDragging ? 'cursor-grabbing' : 'cursor-grab'
+              }`}
+              onClick={(event) => event.stopPropagation()}
             >
-              {/* 광고내용 컨탠츠 */}
-              <AdContentCard handleAdClick={handleAdClick} handleAdClose={handleAdClose} />
+              <div className="relative" style={{ transform: getTransformStyle() }}>
+                <AdContentCard handleAdClick={handleAdClick} handleAdClose={handleAdClose} />
+              </div>
             </div>
           </AlertDialog>
-          {/* 광고 클릭 포인트 애니메이션 */}
-          {showPointAnimationClick && (
-            <PointAnimationClick
-              userId={userId}
-              points={adClickPoints}
-              onAnimationEnd={(points: number) => handleAnimationEnd(points)}
-            />
-          )}
         </>
+      )}
+      {showPointAnimationClick && (
+        <PointAnimationClick
+          userId={userId}
+          points={adClickPoints}
+          onAnimationEnd={(clickPoints: number) =>
+            setPoints((prevPoints) => prevPoints + clickPoints)
+          }
+        />
       )}
     </>
   );

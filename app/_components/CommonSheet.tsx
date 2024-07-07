@@ -10,17 +10,10 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { childCategoriesArray, parentCategoriesArray } from '../post/_action/category';
-
-interface CurrentUser {
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  current_points: number;
-}
+import { CurrentUserType } from '../page';
 
 interface CommonSheetProps {
-  currentUser: CurrentUser | null;
+  currentUser: CurrentUserType | null;
   triggerElement: React.ReactNode;
 }
 

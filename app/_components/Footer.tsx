@@ -6,21 +6,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BiDice6, BiHomeAlt2, BiMenu, BiMessageDots, BiPlusCircle } from 'react-icons/bi';
 import CommonSheet from './CommonSheet';
+import { CurrentUserType } from '../page';
 
-interface CurrentUser {
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  current_points: number;
-}
-
-const Footer = ({ currentUser }: { currentUser: CurrentUser | null }) => {
+const Footer = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
   const pathname = usePathname();
   const categoryId = pathname.split('/').pop();
 
   return (
-    <footer className="fixed bottom-0 left-0 z-50 h-16 w-screen bg-white flex items-center justify-between px-9 rounded-t-2xl border-[1px] border-gray-200 lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:w-[948px]">
+    <footer className="fixed bottom-0 left-0 z-50 h-16 w-screen bg-white flex items-center justify-between px-9 rounded-t-2xl border-[1px] border-gray-200 lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:hidden">
       <Link href="/post">
         <div className="flex flex-col justify-center items-center">
           <BiHomeAlt2 size={24} />

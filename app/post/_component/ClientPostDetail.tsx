@@ -17,7 +17,7 @@ import {
   updateComment,
   deleteComment,
 } from '../_action/comments';
-import { CurrentUser } from '@/lib/cookies';
+import { CurrentUserType } from '@/app/page';
 
 interface Comment {
   id: number;
@@ -30,7 +30,7 @@ interface Comment {
 
 interface PostDetailPageProps {
   postId: string;
-  initialUser: CurrentUser | null;
+  initialUser: CurrentUserType | null;
   initialPost: any;
 }
 
@@ -49,7 +49,7 @@ export default function ClientPostDetail({
   const [views, setViews] = useState<number>(initialPost.views || 0);
   const [replyTo, setReplyTo] = useState<number | undefined>(undefined);
   const [user_id, setUser_id] = useState<string | null>(initialUser?.id || null);
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(initialUser);
+  const [currentUser, setCurrentUser] = useState<CurrentUserType | null>(initialUser);
 
   useEffect(() => {
     const updateViews = async () => {

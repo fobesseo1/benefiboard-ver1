@@ -6,18 +6,25 @@ import Onboarding from './Onboarding';
 import TopPosts from './Topposts';
 import Link from 'next/link';
 import AdFixedPage from './Ad_Bottom';
-import { CurrentUser } from '@/lib/cookies';
 import { PostType } from '../post/types';
 import { useOnboarding } from '../_context/OnboardingContext';
+import { CurrentUserType } from '../page';
+import { RepostType } from '../repost/_component/repost_list';
+
+import Repost_list_mainpage from '../repost/_component/repost_list_mainpage';
 
 interface OnboardingContainerProps {
   postsWithCategoryNames: PostType[];
-  currentUser: CurrentUser | null;
+  currentUser: CurrentUserType | null;
+  bestReposts: RepostType[];
+  basicReposts: RepostType[];
 }
 
 export const OnboardingContainer = ({
   postsWithCategoryNames,
   currentUser,
+  bestReposts,
+  basicReposts,
 }: OnboardingContainerProps) => {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -55,7 +62,7 @@ export const OnboardingContainer = ({
   }
 
   if (!postsWithCategoryNames.length) {
-    window.location.reload();
+    //window.location.reload();
   }
 
   return (
@@ -77,8 +84,30 @@ export const OnboardingContainer = ({
 
       <hr className="mx-auto border-gray-200 w-full " />
 
+      {/* Repost best & basic 10 */}
+      <div className="w-full flex flex-col grid-cols-2 gap-12 lg:gap-8 lg:grid">
+        <div className="w-full  px-4 lg:w-[466px] lg:border border-gray-200 rounded-2xl">
+          <h2 className="text-xl font-semibold lg:my-4 my-2">repost best 10</h2>
+          <Repost_list_mainpage
+            initialPosts={bestReposts}
+            currentUser={currentUser}
+            linkPath="/repost/best"
+          />
+        </div>
+        <div className="w-full px-4 lg:w-[466px] lg:border border-gray-200 rounded-2xl">
+          <h2 className="text-xl font-semibold lg:my-4 my-2 basic-10">repost basic 10</h2>
+          <Repost_list_mainpage
+            initialPosts={basicReposts}
+            currentUser={currentUser}
+            linkPath="/repost"
+          />
+        </div>
+      </div>
+
+      <hr className="mt-12 mb-4 mx-auto border-gray-200 w-full" />
+
       {/* 추천 콘텐츠 */}
-      <div className="w-full flex flex-col justify-center items-center">
+      <div className="w-full  flex flex-col justify-center items-center">
         <h2 className="text-xl font-semibold lg:my-4 my-2">이번 주 인기 게시물</h2>
         <TopPosts posts={postsWithCategoryNames} userId={currentUser?.id ?? null} />
       </div>
@@ -90,7 +119,7 @@ export const OnboardingContainer = ({
         <h2 className="text-xl font-bold lg:my-4 my-2">커뮤니티 하이라이트</h2>
         <Link href="/community-events">
           <div className="mx-auto w-80 h-24 flex flex-col relative border-[1px] border-blue-200 p-1 mt-4 rounded-xl">
-            <img src="/communityEventsAd.png" alt="Community Events" />
+            <img src="/communityEventsAd.jpg" alt="Community Events" />
           </div>
         </Link>
       </div>

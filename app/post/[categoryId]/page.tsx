@@ -1,11 +1,12 @@
 //app>post>[catergoryId]\page.tsx
-import { getCurrentUserInfo } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 import createSupabaseServerClient from '@/lib/supabse/server';
 import { calculatePoints } from '../_action/adPoint';
 import { findCategoryNameById } from '../_action/category';
 import SearchBar from '../_component/SearchBar';
 import InfiniteScrollPosts from '../_component/InfiniteScrollPosts';
 import FixedIconGroup from '../_component/FixedIconGroup';
+import { CurrentUserType } from '@/app/page';
 
 export default async function PostListPageByCategory({
   params,
@@ -22,7 +23,7 @@ export default async function PostListPageByCategory({
     .order('created_at', { ascending: false })
     .limit(10);
 
-  const currentUser = getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
 
   const postsData = posts || [];
 
@@ -69,7 +70,7 @@ export default async function PostListPageByCategory({
 
   return (
     <div className="pt-4">
-      <SearchBar />
+      <SearchBar searchUrl="/post/search" />
 
       <div className="flex flex-col px-4 pt-4 ">
         <InfiniteScrollPosts

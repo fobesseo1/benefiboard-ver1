@@ -1,18 +1,11 @@
 // hooks/useCurrentUser.ts
 'use client';
 
+import { CurrentUserType } from '@/app/page';
 import { useState, useEffect } from 'react';
 
-interface CurrentUser {
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  current_points: number;
-}
-
 const useCurrentUser = () => {
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUserType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

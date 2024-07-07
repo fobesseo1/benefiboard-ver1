@@ -257,7 +257,9 @@ export default function InfiniteScrollPosts({
           );
         })
       ) : (
-        <p className="hover:text-red-200 text-blue-400">No posts</p>
+        <div className="w-full flex items-center justify-center">
+          <p className="hover:text-red-200 text-blue-400 mx-auto">No posts</p>
+        </div>
       )}
 
       {loading && <p>Loading...</p>}

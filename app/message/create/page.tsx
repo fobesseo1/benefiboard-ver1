@@ -1,14 +1,15 @@
 // pages/message/create.tsx
 import { redirect } from 'next/navigation';
 import MessageForm from '../_component/MessageForm';
-import { CurrentUser, getCurrentUserInfo } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { CurrentUserType } from '@/app/page';
 
 export default async function MessageCreatePage() {
-  const currentUser: CurrentUser | null = getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
 
   if (!currentUser) {
     console.log('nonono');

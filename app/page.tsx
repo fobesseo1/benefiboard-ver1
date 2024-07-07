@@ -1,39 +1,39 @@
-// app/page.tsx
-import { getcurrentUserFromCookies } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 import createSupabaseServerClient from '@/lib/supabse/server';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { findCategoryNameById } from './post/_action/category';
-import dynamic from 'next/dynamic';
 import { OnboardingContainer } from './_components/OnboardingContainer';
+import { PublicHomeView } from './_components/PublicHomeView';
+import { fetchTop10Batches, fetchTop10BestBatches } from './repost/_actions/fetchRepostData';
 
-// 클라이언트 컴포넌트를 동적으로 로드합니다.
+export type CurrentUserType = {
+  id: string;
+  username: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  current_points: number;
+};
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default async function Home() {
-  const currentUser = getcurrentUserFromCookies();
-  console.log('currentUser', currentUser);
-
+  const currentUser: CurrentUserType | null = await getCurrentUser();
+  console.log('currentUser main:', currentUser);
   const supabase = await createSupabaseServerClient();
-
-  // 7일 전 날짜 계산
   const now = dayjs().tz('Asia/Seoul');
-  const sevenDayAgo = now.subtract(7, 'day').tz('Asia/Seoul').format();
+  const sevenDayAgo = now.subtract(21, 'day').tz('Asia/Seoul').format();
 
   const result = await supabase
     .from('post')
     .select(
-      `
-      id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, 
-      parent_category_id, child_category_id,likes,dislikes
-    `
+      'id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, parent_category_id, child_category_id, likes, dislikes'
     )
-    .gt('created_at', sevenDayAgo) // 최근 7일 동안의 게시물
-    .order('views', { ascending: false }) // 조회수 기준으로 정렬
-    .limit(10); // 상위 10개 게시물만 가져옴
+    .gt('created_at', sevenDayAgo)
+    .order('views', { ascending: false })
+    .limit(10);
 
   const postsData = result.data || [];
 
@@ -50,12 +50,29 @@ export default async function Home() {
     })
   );
 
-  return (
-    <div>
-      <OnboardingContainer
-        postsWithCategoryNames={postsWithCategoryNames}
-        currentUser={currentUser}
-      />
-    </div>
-  );
+  const { success: bestSuccess, data: bestReposts } = await fetchTop10BestBatches();
+  const { success: basicSuccess, data: basicReposts } = await fetchTop10Batches();
+
+  if (currentUser) {
+    return (
+      <div>
+        <OnboardingContainer
+          postsWithCategoryNames={postsWithCategoryNames}
+          currentUser={currentUser}
+          bestReposts={bestSuccess ? bestReposts : []}
+          basicReposts={basicSuccess ? basicReposts : []}
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <PublicHomeView
+          postsWithCategoryNames={postsWithCategoryNames}
+          bestReposts={bestSuccess ? bestReposts : []}
+          basicReposts={basicSuccess ? basicReposts : []}
+        />
+      </div>
+    );
+  }
 }

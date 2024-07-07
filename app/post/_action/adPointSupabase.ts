@@ -27,7 +27,7 @@ export async function addUserPoints(userId: string, points: number) {
   const { data, error } = await supabase.from('user_points').select('*').eq('user_id', userId);
 
   if (error) {
-    console.error('Error fetching user points:', error);
+    console.error('Error fetching user points - addUserPoints:', error);
     return null;
   }
 
@@ -74,7 +74,7 @@ export async function addWritingPoints(userId: string, points: number) {
   const { data, error } = await supabase.from('user_points').select('*').eq('user_id', userId);
 
   if (error) {
-    console.error('Error fetching user points:', error);
+    console.error('Error fetching user points - assWritingPoints:', error);
     return null;
   }
 
@@ -135,7 +135,7 @@ export async function useUserPoints(userId: string, points: number, type: 'use' 
   const { data, error } = await supabase.from('user_points').select('*').eq('user_id', userId);
 
   if (error) {
-    console.error('Error fetching user points:', error);
+    console.error('Error fetching user points - useUserPoints:', error);
     return null;
   }
 
@@ -167,88 +167,3 @@ export async function useUserPoints(userId: string, points: number, type: 'use' 
     return null;
   }
 }
-
-/* import { calculatePoints } from './adPoint'; */
-
-/* export const saveRoundData = async (userId: string | null, roundPoints: number[]) => {
-  const totalPoints = roundPoints.reduce((acc, val) => acc + val, 0);
-  const rounds = roundPoints.length;
-  const ipAddress = await fetchIpAddress();
-
-  const newRoundData = {
-    userId: userId ?? 'anonymous',
-    ipAddress,
-    timestamp: new Date().toISOString(),
-    round: rounds,
-    pointsArray: roundPoints,
-    totalPoints,
-  };
-
-  // console.log('New round data:', newRoundData);
-
-  // 라운드가 끝날 때마다 서버로 데이터 전송
-  await batchLogRounds([newRoundData]);
-};
-
-export async function batchLogRounds(roundsData: any[]) {
-  try {
-    console.log('Starting to log rounds to Supabase');
-    console.log('Rounds data:', roundsData);
-
-    const saveRoundsData = roundsData[0];
-    console.log('saveRoundsData:', saveRoundsData);
-
-    // Ensure points_array is in a format Supabase can handle
-    const pointsArray = `{${saveRoundsData.pointsArray.join(',')}}`;
-
-    const formRoundsData = {
-      user_id: saveRoundsData.userId,
-      ip_address: saveRoundsData.ipAddress,
-      timestamp: saveRoundsData.timestamp,
-      round: saveRoundsData.round,
-      points_array: pointsArray,
-      total_points: saveRoundsData.totalPoints,
-    };
-
-    const supabase = await createSupabaseServerClient();
-
-    console.log('formRoundsData:', formRoundsData);
-
-    const { data, error } = await supabase.from('round_points').insert([formRoundsData]);
-
-    if (data) {
-      console.log('Round points logged successfully', data);
-    }
-
-    if (error) {
-      console.error('Error logging round points:', error);
-    }
-  } catch (err) {
-    console.error('Unexpected error during logging rounds:', err);
-  }
-}
-
-export async function getUserRoundData(userId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('user_rounds')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
-
-  if (error) {
-    if (error.code === 'PGRST116') {
-      console.log('No existing round data found, initializing new round.');
-      return {
-        user_id: userId,
-        current_round_index: 0,
-        round_points: calculatePoints(),
-        last_updated: new Date().toISOString(),
-      };
-    }
-    console.error('Error fetching user round data:', error);
-    return null;
-  }
-
-  return data;
-} */

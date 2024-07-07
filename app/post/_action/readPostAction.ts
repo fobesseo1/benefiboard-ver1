@@ -1,11 +1,12 @@
 'use server';
 
-import { getCurrentUserInfo } from '@/lib/cookies';
+import { CurrentUserType } from '@/app/page';
+import { getCurrentUser } from '@/lib/cookies';
 import createSupabaseServerClient from '@/lib/supabse/server';
 
 export async function recordPostRead(postId: string, ipAddress: string) {
   const supabase = await createSupabaseServerClient();
-  const currentUser = await getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
 
   const userId = currentUser ? currentUser.id : null;
 

@@ -196,3 +196,22 @@
 .slide-highlight {
   animation: slideAndHighlight 2s ease-in-out;
 }
+
+@keyframes point-increase {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    color: var(--primary-foreground);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    color: var(--secondary-foreground);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    color: var(--primary-foreground);
+  }
+}
+
+.animate-point-increase {
+  animation: point-increase 2s ease-in-out forwards;
+}

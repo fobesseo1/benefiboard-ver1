@@ -2,6 +2,7 @@
 
 import createSupabaseServerClient from '@/lib/supabse/server';
 import { PostType } from '../types';
+import { RepostType } from '@/app/repost/_component/repost_list';
 
 export const fetchMorePosts = async (page: number, categoryId?: string) => {
   const supabase = await createSupabaseServerClient();
@@ -41,4 +42,80 @@ export async function fetchSearchPosts(searchTerm: string, page: number): Promis
   }
 
   return data || [];
+}
+
+//리포스트리포스트 오더 순서대로
+
+export const fetchMoreReposts = async (page: number): Promise<RepostType[]> => {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from('repost_data')
+    .select('*')
+    .order('batch', { ascending: false })
+    .order('order', { ascending: true })
+    .range((page - 1) * 10, page * 10 - 1);
+
+  if (error) {
+    console.error('Error fetching reposts:', error);
+    return [];
+  }
+
+  return data as RepostType[]; // 수정된 부분
+};
+
+export async function fetchSearchReposts(searchTerm: string, page: number): Promise<RepostType[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('repost_data')
+    .select('*')
+    .ilike('title', `%${searchTerm}%`)
+    .order('order', { ascending: true })
+    .range((page - 1) * 10, page * 10 - 1);
+
+  if (error) {
+    console.error('Error fetching search posts:', error);
+    return [];
+  }
+
+  return data as RepostType[]; // 수정된 부분
+}
+
+// Fetch more reposts from repost_best_data table
+export const fetchMoreBestReposts = async (page: number): Promise<RepostType[]> => {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from('repost_best_data')
+    .select('*')
+    .order('batch', { ascending: false })
+    .order('order', { ascending: true })
+    .range((page - 1) * 10, page * 10 - 1);
+
+  if (error) {
+    console.error('Error fetching reposts:', error);
+    return [];
+  }
+
+  return data as RepostType[]; // 수정된 부분
+};
+
+export async function fetchSearchBestReposts(
+  searchTerm: string,
+  page: number
+): Promise<RepostType[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('repost_best_data')
+    .select('*')
+    .ilike('title', `%${searchTerm}%`)
+    .order('order', { ascending: true })
+    .range((page - 1) * 10, page * 10 - 1);
+
+  if (error) {
+    console.error('Error fetching search posts:', error);
+    return [];
+  }
+
+  return data as RepostType[]; // 수정된 부분
 }

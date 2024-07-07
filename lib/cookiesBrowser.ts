@@ -1,7 +1,7 @@
 'use server';
 
-import { getcurrentUserFromCookies } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 
 export async function getcurrentUserBrowserFromCookie() {
-  return await getcurrentUserFromCookies();
+  return await getCurrentUser();
 }

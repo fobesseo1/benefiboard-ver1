@@ -5,7 +5,8 @@ import './globals.css';
 import Status from './_components/Status';
 import { OnboardingProvider } from './_context/OnboardingContext';
 import ClientLayout from './_components/ClientLayout';
-import { getcurrentUserFromCookies } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
+import { CurrentUserType } from './page';
 
 const inter = Inter({ subsets: ['latin'] });
 const poppins = Poppins({
@@ -37,13 +38,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const currentUser = getcurrentUserFromCookies();
-  console.log('layout currentUser', currentUser);
+  const currentUser: CurrentUserType | null = await getCurrentUser();
+  //console.log('layout currentUser', currentUser);
 
   return (
     <html lang="ko">

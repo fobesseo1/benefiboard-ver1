@@ -7,7 +7,8 @@ import { redirect } from 'next/navigation';
 import { deleteAvatarFromSupabase, uploadAvatarToSupabase } from '@/app/post/_action/image';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { getcurrentUserFromCookies } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
+import { CurrentUserType } from '@/app/page';
 
 export interface ProfileType {
   avatar_url?: string;
@@ -36,7 +37,7 @@ export const fetchProfileById = async (id: string): Promise<ProfileType> => {
 };
 
 export const updateProfile = async (formData: FormData) => {
-  const currentUser = await getcurrentUserFromCookies();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
   const currentUserId = currentUser?.id || '';
 
   const supabase = await createSupabaseServerClient();

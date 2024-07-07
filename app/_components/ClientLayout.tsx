@@ -3,23 +3,16 @@
 'use client';
 
 import { useOnboarding } from '../_context/OnboardingContext';
+import { CurrentUserType } from '../page';
 import Footer from './Footer';
 import Header from './Header';
-
-interface CurrentUser {
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  current_points: number;
-}
 
 export default function ClientLayout({
   children,
   currentUser,
 }: {
   children: React.ReactNode;
-  currentUser: CurrentUser | null;
+  currentUser: CurrentUserType | null;
 }) {
   const { isOnboarding } = useOnboarding();
 
@@ -30,7 +23,7 @@ export default function ClientLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <Header currentUser={currentUser} />
-      <main className="flex-1 tracking-tight text-gray-800 leading-tight pt-16 pb-16">
+      <main className="flex-1 tracking-tight text-gray-800 leading-tight pt-16 pb-16 lg:pb-4">
         {children}
       </main>
       <Footer currentUser={currentUser} />

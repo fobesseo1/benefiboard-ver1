@@ -9,7 +9,7 @@ export default function AdFixedPage() {
       if (banner) {
         banner.classList.add('slide-highlight');
       }
-    }, 3000); // 3초 후에 애니메이션 실행
+    }, 1000); // 3초 후에 애니메이션 실행
 
     return () => clearTimeout(timer);
   }, []);

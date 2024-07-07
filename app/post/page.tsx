@@ -2,11 +2,11 @@
 
 import createSupabaseServerClient from '@/lib/supabse/server';
 import SearchBar from './_component/SearchBar';
-import { CurrentUser, getCurrentUserInfo } from '@/lib/cookies';
-import PopularitySwitchClient from './_component/PopularitySwitchClient';
+import { getCurrentUser } from '@/lib/cookies';
 import FixedIconGroup from './_component/FixedIconGroup';
 import { findCategoryNameById } from './_action/category';
 import InfiniteScrollPosts from './_component/InfiniteScrollPosts';
+import { CurrentUserType } from '../page';
 
 export default async function PostPage() {
   const supabase = await createSupabaseServerClient();
@@ -22,6 +22,7 @@ export default async function PostPage() {
     .limit(10);
 
   const postsData = result.data || [];
+  console.log('result: postPage', result);
 
   const initialPosts = postsData.map((post) => {
     return {
@@ -31,11 +32,11 @@ export default async function PostPage() {
     };
   });
 
-  const currentUser: CurrentUser | null = getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
 
   return (
     <div className="pt-4">
-      <SearchBar />
+      <SearchBar searchUrl="/post/search" />
       {/* <PopularitySwitchClient initialPosts={initialPosts} userId={currentUser?.id ?? null} /> */}
       <div className="flex flex-col px-4 pt-4 ">
         <InfiniteScrollPosts initialPosts={initialPosts} userId={currentUser?.id ?? null} />

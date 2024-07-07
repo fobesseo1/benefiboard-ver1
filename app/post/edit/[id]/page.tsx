@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
-import { CurrentUser, getCurrentUserInfo } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 import EditForm from '../../_component/EditForm';
+import { CurrentUserType } from '@/app/page';
 
 export default async function PostEditPage() {
-  const currentUser: CurrentUser | null = getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
 
   if (!currentUser) {
     console.log('nonono');

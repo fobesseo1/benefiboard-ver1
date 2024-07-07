@@ -1,17 +1,18 @@
 // app/post/create/page.tsx
 import PostForm from '../_component/PostForm';
-import { CurrentUser, getCurrentUserInfo } from '@/lib/cookies';
+import { getCurrentUser } from '@/lib/cookies';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { CurrentUserType } from '@/app/page';
 
 export default async function PostCreatePage({
   searchParams,
 }: {
   searchParams: { categoryId?: string };
 }) {
-  const currentUser: CurrentUser | null = getCurrentUserInfo();
+  const currentUser: CurrentUserType | null = await getCurrentUser();
   const categoryId = searchParams.categoryId || '';
 
   console.log('Post createPage categoryId:', categoryId);

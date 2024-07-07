@@ -1,54 +1,56 @@
-//lib/cookies.ts
-import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
+//lib>cookies.ts
 
-export type CurrentUser = {
-  current_points: number;
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-};
+'use server';
 
-export function getcurrentUserFromCookies(): CurrentUser | null {
-  const cookieStore = cookies();
-  const currentUserCookie = cookieStore.get('currentUser');
+import { CurrentUserType } from '@/app/page';
+import { cache } from 'react';
+import createSupabaseServerClient from './supabse/server';
 
-  // 디버깅을 위한 로그 추가
-  // console.log('All cookies:', cookieStore.getAll());
-  // console.log('currentUserCookie:', currentUserCookie);
+export const getCurrentUser = cache(async (): Promise<CurrentUserType | null> => {
+  const supabase = await createSupabaseServerClient();
 
-  if (currentUserCookie) {
-    try {
-      const decodedValue = decodeURIComponent(currentUserCookie.value);
-      //console.log('decodedValue:', decodedValue); // 디코딩된 값 확인
-      return JSON.parse(decodedValue);
-    } catch (error) {
-      console.error('Error parsing currentUser cookie:', error);
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      console.log('No authenticated user');
       return null;
     }
-  } else {
-    revalidatePath('/');
-    console.log('no cookie');
-  }
-  return null;
-}
 
-export function getCurrentUserInfo() {
-  const currentUser = getcurrentUserFromCookies();
+    const { data: userData, error: dataError } = await supabase
+      .from('userdata')
+      .select('id, username, email, avatar_url, current_points')
+      .eq('id', user.id)
+      .single();
+
+    if (dataError || !userData) {
+      console.log('User data not found in database');
+      return null;
+    }
+
+    return userData as CurrentUserType;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+});
+
+export async function getCurrentUserInfo() {
+  const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     return null;
   }
 
-  const userInfo = {
+  return {
     id: currentUser.id ?? '',
     username: currentUser.username ?? '',
     email: currentUser.email ?? '',
     avatar_url: currentUser.avatar_url ?? '',
-    point: currentUser.current_points ?? '',
-    current_points: currentUser.current_points ?? '',
+    point: currentUser.current_points ?? 0,
+    current_points: currentUser.current_points ?? 0,
   };
-
-  return userInfo;
 }

@@ -1,77 +1,100 @@
 // hooks/useDrag.ts
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
-export function useDrag(onDragEnd: () => void) {
-  const [startX, setStartX] = useState<number | null>(null);
-  const [currentX, setCurrentX] = useState<number | null>(null);
+interface Position {
+  x: number;
+  y: number;
+}
+
+export function useDrag(onDragEnd: (endX: number, endY: number, isDragged: boolean) => void) {
+  const [startPosition, setStartPosition] = useState<Position | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const dragThreshold = 30; // 드래그로 인식할 최소 이동 거리 (픽셀)
+  const dragTimeThreshold = 300; // 드래그로 인식할 최소 시간 (밀리초)
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (startX !== null) {
-      const touchEndX = e.touches[0].clientX;
-      setCurrentX(touchEndX);
-
-      if (Math.abs(startX - touchEndX) > 36) {
-        onDragEnd();
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setStartX(null);
-    setCurrentX(null);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setStartX(e.clientX);
+  const handleStart = useCallback((x: number, y: number) => {
+    setStartPosition({ x, y });
+    setCurrentPosition({ x, y });
+    startTimeRef.current = Date.now();
     setIsDragging(true);
-  };
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && startX !== null) {
-      const mouseEndX = e.clientX;
-      setCurrentX(mouseEndX);
-
-      if (Math.abs(startX - mouseEndX) > 36) {
-        onDragEnd();
+  const handleMove = useCallback(
+    (x: number, y: number) => {
+      if (isDragging) {
+        setCurrentPosition({ x, y });
       }
+    },
+    [isDragging]
+  );
+
+  const handleEnd = useCallback(() => {
+    if (startPosition && currentPosition && startTimeRef.current) {
+      const dx = currentPosition.x - startPosition.x;
+      const dy = currentPosition.y - startPosition.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const duration = Date.now() - startTimeRef.current;
+
+      const isDragged =
+        distance > dragThreshold ||
+        (Math.abs(dx) > Math.abs(dy) && distance > dragThreshold / 2) ||
+        duration > dragTimeThreshold;
+
+      onDragEnd(currentPosition.x, currentPosition.y, isDragged);
     }
-  };
-
-  const handleMouseUp = () => {
-    setStartX(null);
-    setCurrentX(null);
+    setStartPosition(null);
+    setCurrentPosition(null);
     setIsDragging(false);
-  };
+    startTimeRef.current = null;
+  }, [startPosition, currentPosition, onDragEnd]);
 
-  const handleMouseLeave = () => {
-    setStartX(null);
-    setCurrentX(null);
-    setIsDragging(false);
-  };
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleStart(touch.clientX, touch.clientY);
+    },
+    [handleStart]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    },
+    [handleMove]
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      handleStart(e.clientX, e.clientY);
+    },
+    [handleStart]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      handleMove(e.clientX, e.clientY);
+    },
+    [handleMove]
+  );
 
   const getTransformStyle = useCallback(() => {
-    let transformX = 0;
-
-    if (startX !== null && currentX !== null) {
-      transformX = currentX - startX;
+    if (startPosition && currentPosition) {
+      const dx = currentPosition.x - startPosition.x;
+      const dy = currentPosition.y - startPosition.y;
+      return `translate(${dx}px, ${dy}px)`;
     }
-
-    return `translate(-50%, -50%) translateX(${transformX}px)`;
-  }, [startX, currentX]);
+    return '';
+  }, [startPosition, currentPosition]);
 
   return {
     handleTouchStart,
     handleTouchMove,
-    handleTouchEnd,
     handleMouseDown,
     handleMouseMove,
-    handleMouseUp,
-    handleMouseLeave,
+    handleEnd,
     getTransformStyle,
     isDragging,
   };

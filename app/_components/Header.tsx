@@ -8,16 +8,9 @@ import { RxHamburgerMenu } from 'react-icons/rx';
 import Link from 'next/link';
 import CommonSheet from './CommonSheet';
 import UserProfileCard from './UserProfileCard';
+import { CurrentUserType } from '../page';
 
-interface CurrentUser {
-  id: string;
-  username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  current_points: number;
-}
-
-const Header = ({ currentUser }: { currentUser: CurrentUser | null }) => {
+const Header = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
   const router = useRouter();
 
   const handleBackClick = () => {
@@ -29,7 +22,7 @@ const Header = ({ currentUser }: { currentUser: CurrentUser | null }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 z-50 w-full">
+    <div className="fixed top-0 left-0 z-50 w-full ">
       <header className="h-16 bg-white flex items-center justify-between px-6 border-b-[1px] border-gray-200  lg:w-[948px] mx-auto">
         <BiArrowBack size={24} onClick={handleBackClick} className="cursor-pointer" />
         <img
