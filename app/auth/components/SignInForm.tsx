@@ -1,3 +1,5 @@
+//app>auth>components>page.tsx
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';

@@ -16,7 +16,7 @@ const Advertisement = ({ onButtonClick }: { onButtonClick: () => void }) => (
     <p className="text-gray-600 text-right mr-4">ad</p>
     <img src="/ad-nike1.jpg" alt="" className="w-full aspect-video object-cover " />
     <Button className="py-4" onClick={onButtonClick}>
-      확인하고 포인트 받기
+      Advertisement 확인하고 포인트 받기
     </Button>
   </div>
 );

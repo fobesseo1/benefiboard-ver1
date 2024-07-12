@@ -52,16 +52,20 @@ export function useDrag(onDragEnd: (endX: number, endY: number, isDragged: boole
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      handleStart(touch.clientX, touch.clientY);
+      if (e && e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        handleStart(touch.clientX, touch.clientY);
+      }
     },
     [handleStart]
   );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      handleMove(touch.clientX, touch.clientY);
+      if (e && e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        handleMove(touch.clientX, touch.clientY);
+      }
     },
     [handleMove]
   );

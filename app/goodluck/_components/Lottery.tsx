@@ -4,11 +4,14 @@ import React, { useState, useEffect } from 'react';
 import './lottery.css';
 import { Button } from '@/components/ui/button';
 import { BiRevision, BiSave } from 'react-icons/bi';
+import { useRouter } from 'next/navigation';
 
 export default function LotteryComponent() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [stoppedBalls, setStoppedBalls] = useState<(number | null)[]>(Array(6).fill(null));
   const [resultsHistory, setResultsHistory] = useState<number[][]>([]);
+
+  const router = useRouter();
 
   const handleClick = () => {
     setIsAnimating(true);
@@ -47,9 +50,10 @@ export default function LotteryComponent() {
   };
 
   const handleReset = () => {
-    setIsAnimating(false);
-    setStoppedBalls(Array(6).fill(null));
-    setResultsHistory([]);
+    router.refresh();
+    // setIsAnimating(false);
+    // setStoppedBalls(Array(6).fill(null));
+    // setResultsHistory([]);
   };
 
   const handleCopy = () => {

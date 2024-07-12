@@ -6,7 +6,6 @@ import {
   addWritingClickPoints,
 } from '../_action/adPointSupabase';
 import { PointAnimation } from './PointAnimation';
-import PointAnimationClick from './PointAnimationClick';
 import { AdContentCard } from './AdContent';
 import { useDrag } from '@/hooks/useDrag';
 
@@ -29,8 +28,7 @@ export default function AdAlert({
   const [showAnimation, setShowAnimation] = useState(false);
   const [points, setPoints] = useState(initialPoints);
   const [adClickPoints, setAdClickPoints] = useState(0);
-  const [showPointAnimationClick, setShowPointAnimationClick] = useState(false);
-  const [animationPoints, setAnimationPoints] = useState(0);
+  const [showAdClickAnimation, setShowAdClickAnimation] = useState(false);
   const animationExecutedRef = useRef(false);
 
   const handleAdClose = useCallback(() => {
@@ -39,23 +37,20 @@ export default function AdAlert({
 
   const { getTransformStyle, isDragging } = useDrag(handleAdClose);
 
-  const handleAnimationEnd = useCallback((newPoints: number) => {
-    if (animationExecutedRef.current) return;
-    animationExecutedRef.current = true;
-    setAnimationPoints(newPoints);
-  }, []);
-
-  useEffect(() => {
-    if (animationPoints > 0) {
-      setPoints((prevPoints) => prevPoints + animationPoints);
+  const handleAnimationEnd = useCallback(
+    (newPoints: number) => {
+      if (animationExecutedRef.current) return;
+      animationExecutedRef.current = true;
+      setPoints((prevPoints) => prevPoints + newPoints);
       if (userId) {
-        addUserPoints(userId, animationPoints);
+        addUserPoints(userId, newPoints);
       }
-      if (animationPoints >= 3) {
+      if (newPoints >= 3) {
         setShowAd(true);
       }
-    }
-  }, [animationPoints, userId]);
+    },
+    [userId]
+  );
 
   const handleAdClick = useCallback(async () => {
     const readerClickPoints = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
@@ -65,7 +60,7 @@ export default function AdAlert({
       await addUserClickPoints(userId, readerClickPoints);
     }
 
-    setShowPointAnimationClick(true);
+    setShowAdClickAnimation(true);
 
     if (author_id) {
       const writerPoints = 500;
@@ -75,7 +70,7 @@ export default function AdAlert({
     setTimeout(() => {
       window.open(AD_URL, '_blank');
       setShowAd(false);
-    }, 500);
+    }, 2500);
   }, [userId, author_id]);
 
   useEffect(() => {
@@ -84,20 +79,22 @@ export default function AdAlert({
 
   return (
     <>
-      {showAnimation && (
-        <PointAnimation
-          userId={userId}
-          initialRoundData={initialRoundData}
-          initialPoints={initialPoints}
-          onAnimationEnd={handleAnimationEnd}
-        />
-      )}
+      <div className="fixed inset-0 z-[1000] pointer-events-none">
+        {showAnimation && (
+          <PointAnimation
+            userId={userId}
+            initialRoundData={initialRoundData}
+            initialPoints={initialPoints}
+            onAnimationEnd={handleAnimationEnd}
+          />
+        )}
+      </div>
       {showAd && (
         <>
-          <div className="w-screen h-screen bg-black bg-opacity-75 z-80 relative" />
+          <div className="fixed inset-0 bg-black bg-opacity-75 z-[1001]" />
           <AlertDialog open={showAd} onOpenChange={handleAdClose}>
             <div
-              className={`fixed inset-0 flex items-center justify-center z-50 ${
+              className={`fixed inset-0 flex items-center justify-center z-[1002] ${
                 isDragging ? 'cursor-grabbing' : 'cursor-grab'
               }`}
               onClick={(event) => event.stopPropagation()}
@@ -109,14 +106,18 @@ export default function AdAlert({
           </AlertDialog>
         </>
       )}
-      {showPointAnimationClick && (
-        <PointAnimationClick
-          userId={userId}
-          points={adClickPoints}
-          onAnimationEnd={(clickPoints: number) =>
-            setPoints((prevPoints) => prevPoints + clickPoints)
-          }
-        />
+      {showAdClickAnimation && (
+        <div className="fixed inset-0 z-[1003] pointer-events-none">
+          <PointAnimation
+            userId={userId}
+            initialRoundData={{ round_points: [adClickPoints], current_round_index: 0 }}
+            initialPoints={points}
+            onAnimationEnd={(clickPoints: number) => {
+              setPoints((prevPoints) => prevPoints + clickPoints);
+              setShowAdClickAnimation(false);
+            }}
+          />
+        </div>
       )}
     </>
   );

@@ -1,5 +1,5 @@
 // middleware.ts
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+/* import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -58,45 +58,37 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
+ */
 
-/* import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers);
-
-  // Supabase 클라이언트 생성
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    const { data: currentUser, error } = await supabase
-      .from('userdata')
-      .select('id, username, avatar_url, email, current_points')
-      .eq('id', user.id)
-      .single();
-
-    if (currentUser) {
-      console.log('Setting x-current-user header:', JSON.stringify(currentUser));
-      // 쿠키 대신 헤더를 설정합니다
-      requestHeaders.set('x-current-user', JSON.stringify(currentUser));
-    } else {
-      console.error('currentUser 가져오기 오류:', error);
-    }
-  }
-
-  // 새로운 응답 생성
-  const response = NextResponse.next({
+  let response = NextResponse.next({
     request: {
-      headers: requestHeaders,
+      headers: request.headers,
     },
   });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
+
+  await supabase.auth.getSession();
 
   return response;
 }
@@ -104,4 +96,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
- */

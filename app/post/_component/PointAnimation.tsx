@@ -1,3 +1,4 @@
+// PointAnimation.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { calculatePoints } from '../_action/adPoint';
 import { saveUserRoundData } from '../_action/adPointSupabase';
@@ -64,6 +65,11 @@ export function PointAnimation({
     initializeRound();
   }, []);
 
+  const handleAnimationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
   return (
     <>
       {randomNumber !== null && (
@@ -71,8 +77,12 @@ export function PointAnimation({
           className={`animate-move-up fixed flex flex-col justify-center items-center gap-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 ${
             randomNumber === 0 ? 'bg-gray-400' : randomNumber >= 10 ? 'bg-blue-600' : 'bg-red-600'
           } rounded-full p-2 w-56 h-56 aspect-square`}
+          onClick={handleAnimationClick}
         >
-          <p className="text-6xl font-bold text-white">{randomNumber}</p>
+          <p className="text-6xl font-bold text-white">
+            <span className="text-4xl">+</span>
+            {randomNumber}
+          </p>
           <p className="text-2xl text-white text-center">
             {randomNumber === 0 ? '이번엔 꽝' : randomNumber >= 10 ? '빅포인트!!' : '포인트 적립'}
           </p>
@@ -87,11 +97,15 @@ export function PointAnimation({
           )}
         </div>
       )}
-      <div className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center z-[1000]">
+      <div
+        className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center z-[1005]"
+        onClick={handleAnimationClick}
+      >
         <AnimatedPointCounter
           currentPoints={totalPoints}
           addedPoints={randomNumber || 0}
           onAnimationComplete={() => {}}
+          isLoggedIn={!!userId}
         />
       </div>
     </>

@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from '../_css-module/Onboarding.module.css';
+import GamifiedPointsSystem from './GamifiedPointsSystem';
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -13,13 +14,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const timeout1 = setTimeout(() => setStep(1), 1500); // 1.5배 느리게
-    const timeout2 = setTimeout(() => setStep(2), 3000); // 1.5배 느리게
-    const timeout3 = setTimeout(() => setStep(3), 4500); // 1.5배 느리게
+    const timeout1 = setTimeout(() => setStep(1), 1500);
+    const timeout2 = setTimeout(() => setStep(2), 3000);
+    const timeout3 = setTimeout(() => setStep(3), 4500);
     const timeout4 = setTimeout(() => {
       setStep(4);
       onComplete(); // 온보딩이 완료되었음을 알림
-    }, 6000); // 1.5배 느리게
+    }, 6000);
 
     return () => {
       clearTimeout(timeout1);
@@ -31,6 +32,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <div className={`${styles.onboardingContainer} h-screen w-screen`}>
+      {/* 새로운 GamifiedPointsSystem 컴포넌트 */}
+      {/* <GamifiedPointsSystem /> */}
+
+      {/* 기존 코드 (주석 처리) */}
+
       <div className={`${styles.logo} ${step >= 1 ? styles.visible : ''}`}>
         <Image src="/logo-benefiboard-white.svg" alt="Benefiboard Logo" width={240} height={36} />
       </div>

@@ -11,14 +11,7 @@ import { CurrentUserType } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
 import classNames from 'classnames'; // classNames 라이브러리 임포트
 import Link from 'next/link';
-
-export type RepostType = {
-  id: number;
-  link: string;
-  title: string;
-  site: string;
-  created_at: string;
-};
+import { RepostType } from './repost_list';
 
 type RepostDataProps = {
   initialPosts: RepostType[];

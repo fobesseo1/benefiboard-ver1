@@ -1,12 +1,12 @@
+//app>post.tsx
+
+import { Suspense } from 'react';
 import { getCurrentUser } from '@/lib/cookies';
-import createSupabaseServerClient from '@/lib/supabse/server';
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
-import { findCategoryNameById } from './post/_action/category';
-import { OnboardingContainer } from './_components/OnboardingContainer';
+import { fetchPosts, fetchBestReposts, fetchBasicReposts } from './actions/mainPageActions';
+import LoadingSpinner from './_components/LoadingSpinner';
 import { PublicHomeView } from './_components/PublicHomeView';
-import { fetchTop10Batches, fetchTop10BestBatches } from './repost/_actions/fetchRepostData';
+import OnboardingContainer from './_components/OnboardingContainer';
+import { revalidatePath } from 'next/cache';
 
 export type CurrentUserType = {
   id: string;
@@ -16,63 +16,56 @@ export type CurrentUserType = {
   current_points: number;
 };
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+export const revalidate = 3600; // 1시간마다 재생성
 
 export default async function Home() {
-  const currentUser: CurrentUserType | null = await getCurrentUser();
-  console.log('currentUser main:', currentUser);
-  const supabase = await createSupabaseServerClient();
-  const now = dayjs().tz('Asia/Seoul');
-  const sevenDayAgo = now.subtract(21, 'day').tz('Asia/Seoul').format();
+  const currentUser = await getCurrentUser();
+  let posts = await fetchPosts();
+  let bestReposts = await fetchBestReposts();
+  let basicReposts = await fetchBasicReposts();
 
-  const result = await supabase
-    .from('post')
-    .select(
-      'id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, parent_category_id, child_category_id, likes, dislikes'
-    )
-    .gt('created_at', sevenDayAgo)
-    .order('views', { ascending: false })
-    .limit(10);
-
-  const postsData = result.data || [];
-
-  const postsWithCategoryNames = await Promise.all(
-    postsData.map(async (post) => {
-      const parentCategoryName = await findCategoryNameById(post.parent_category_id);
-      const childCategoryName = await findCategoryNameById(post.child_category_id);
-
-      return {
-        ...post,
-        parent_category_name: parentCategoryName,
-        child_category_name: childCategoryName,
-      };
-    })
-  );
-
-  const { success: bestSuccess, data: bestReposts } = await fetchTop10BestBatches();
-  const { success: basicSuccess, data: basicReposts } = await fetchTop10Batches();
+  // 모든 데이터가 비어있는지 확인
+  if (!posts.length && !bestReposts.length && !basicReposts.length) {
+    // 모든 데이터가 비어있으면 페이지를 새로고침
+    revalidatePath('/');
+    // 새로고침 후에도 데이터를 표시해야 하므로, 다시 한 번 데이터를 가져옵니다.
+    posts = await fetchPosts();
+    bestReposts = await fetchBestReposts();
+    basicReposts = await fetchBasicReposts();
+  }
 
   if (currentUser) {
     return (
-      <div>
+      <Suspense fallback={<LoadingSpinner />}>
         <OnboardingContainer
-          postsWithCategoryNames={postsWithCategoryNames}
+          postsWithCategoryNames={posts}
           currentUser={currentUser}
-          bestReposts={bestSuccess ? bestReposts : []}
-          basicReposts={basicSuccess ? basicReposts : []}
+          bestReposts={bestReposts}
+          basicReposts={basicReposts}
         />
-      </div>
+      </Suspense>
     );
   } else {
     return (
-      <div>
+      <Suspense fallback={<LoadingSpinner />}>
         <PublicHomeView
-          postsWithCategoryNames={postsWithCategoryNames}
-          bestReposts={bestSuccess ? bestReposts : []}
-          basicReposts={basicSuccess ? basicReposts : []}
+          postsWithCategoryNames={posts}
+          bestReposts={bestReposts}
+          basicReposts={basicReposts}
         />
-      </div>
+      </Suspense>
     );
   }
 }
+
+/* export type CurrentUserType = {
+  id: string;
+  username: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  current_points: number;
+};
+
+export default function Home() {
+  return <div>Hello, World!</div>;
+} */

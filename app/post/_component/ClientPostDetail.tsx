@@ -164,7 +164,7 @@ export default function ClientPostDetail({
         </Button>
       </div>
 
-      <Advertisement onButtonClick={() => setShowNumber(true)} />
+      {/* <Advertisement onButtonClick={() => setShowNumber(true)} /> */}
       <CommentDialog
         isOpen={isDialogOpen}
         onClose={() => {

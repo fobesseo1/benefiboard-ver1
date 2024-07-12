@@ -1,15 +1,15 @@
-//app>repost>_components>repost_list.tsx
-
 'use client';
 
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { listformatDate } from '@/lib/utils/formDate';
 import RepostPopup from './RepostPopup';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CurrentUserType } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
-import classNames from 'classnames'; // classNames 라이브러리 임포트
+import classNames from 'classnames';
+import { fetchReposts, fetchBestReposts } from '../_actions/repostActions';
+import SiteFilter, { siteColors } from './SiteFilter';
 
 export type RepostType = {
   id: number;
@@ -17,43 +17,27 @@ export type RepostType = {
   title: string;
   site: string;
   created_at: string;
+  batch: number;
+  order: number;
 };
 
 type RepostDataProps = {
   initialPosts: RepostType[];
   currentUser: CurrentUserType | null;
+  isBestPosts?: boolean;
+  initialSearchTerm?: string;
   searchTerm?: string;
-  fetchMoreReposts: (page: number) => Promise<RepostType[]>; // 수정된 부분
-  fetchSearchReposts: (searchTerm: string, page: number) => Promise<RepostType[]>; // 추가된 부분
-};
-
-// 사이트와 색상 매핑 객체
-const siteColors: { [key: string]: string } = {
-  웃대: 'red',
-  펨코: 'orange',
-  인벤: 'amber',
-  엠팍: 'green',
-  루리: 'emerald',
-  오유: 'teal',
-  SLR: 'cyan',
-  '82쿡': 'sky',
-  클리앙: 'indigo',
-  인티: 'violet',
-  보배: 'purple',
-  더쿠: 'fuchsia',
-  디씨: 'stone',
-  유머픽: 'lime',
-  뽐뿌: 'rose',
 };
 
 export default function Repost_list({
   initialPosts,
   currentUser,
-  fetchMoreReposts, // 수정된 부분
-  fetchSearchReposts, // 추가된 부분
-  searchTerm,
+  isBestPosts = false,
+  initialSearchTerm = '',
+  searchTerm: propSearchTerm = '',
 }: RepostDataProps) {
   const [posts, setPosts] = useState<RepostType[]>(initialPosts);
+  const [allPosts, setAllPosts] = useState<RepostType[]>(initialPosts);
   const [currentUserState, setCurrentUserState] = useState<CurrentUserType | null>(currentUser);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(2);
@@ -61,12 +45,18 @@ export default function Repost_list({
   const [readPosts, setReadPosts] = useState<string[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPost, setSelectedPost] = useState<RepostType | null>(null);
+  const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const userId = currentUser?.id;
+
+  const urlSearchTerm = searchParams.get('query');
+  const effectiveSearchTerm = propSearchTerm || urlSearchTerm || initialSearchTerm;
 
   useEffect(() => {
     setPosts(initialPosts);
+    setAllPosts(initialPosts);
     setCurrentUserState(currentUser);
   }, [initialPosts, currentUser]);
 
@@ -94,20 +84,73 @@ export default function Repost_list({
     setReadPosts(storedReadPosts);
   }, [userId]);
 
-  const handleObserver = async (entries: IntersectionObserverEntry[]) => {
-    const target = entries[0];
-    if (target.isIntersecting && !loading && hasMore) {
+  useEffect(() => {
+    const fetchInitialPosts = async () => {
       setLoading(true);
-      const newPosts = searchTerm
-        ? await fetchSearchReposts(searchTerm, page)
-        : await fetchMoreReposts(page); // 수정된 부분
-      if (newPosts.length > 0) {
-        setPosts((prev) => [...prev, ...newPosts]);
-        setPage((prev) => prev + 1);
-      } else {
+      try {
+        const { data: newPosts, totalCount } = isBestPosts
+          ? await fetchBestReposts(effectiveSearchTerm, 1)
+          : await fetchReposts(effectiveSearchTerm, 1);
+
+        setAllPosts(newPosts);
+        setPosts(newPosts);
+        setPage(2);
+        setHasMore(newPosts.length < (totalCount ?? 0));
+      } catch (error) {
+        console.error('Error fetching initial posts:', error);
+        setAllPosts([]);
+        setPosts([]);
         setHasMore(false);
       }
       setLoading(false);
+    };
+
+    if (effectiveSearchTerm || initialPosts.length === 0) {
+      fetchInitialPosts();
+    }
+  }, [effectiveSearchTerm, isBestPosts, initialPosts.length]);
+
+  const fetchMorePosts = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    try {
+      const { data: newPosts, totalCount } = isBestPosts
+        ? await fetchBestReposts(effectiveSearchTerm, page)
+        : await fetchReposts(effectiveSearchTerm, page);
+
+      if (newPosts.length > 0) {
+        const uniquePosts = Array.from(
+          new Set([...allPosts, ...newPosts].map((post) => JSON.stringify(post)))
+        ).map((post) => JSON.parse(post));
+        setAllPosts(uniquePosts);
+        setPage((prev) => prev + 1);
+        setHasMore(uniquePosts.length < (totalCount ?? 0));
+
+        // 필터링된 포스트 업데이트
+        updateFilteredPosts(uniquePosts, selectedSites);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching more posts:', error);
+      setHasMore(false);
+    }
+    setLoading(false);
+  };
+
+  const updateFilteredPosts = (allPosts: RepostType[], sites: string[]) => {
+    if (sites.length === 0) {
+      setPosts(allPosts);
+    } else {
+      setPosts(allPosts.filter((post) => sites.includes(post.site)));
+    }
+  };
+
+  const handleObserver = (entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting && !loading && hasMore) {
+      fetchMorePosts();
     }
   };
 
@@ -128,13 +171,11 @@ export default function Repost_list({
     const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
     const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
 
-    // 중복 항목 제거 및 새로운 포스트 ID 추가
     const updatedReadPosts = Array.from(new Set([...storedReadPosts, post.id.toString()]));
 
     setReadPosts(updatedReadPosts);
     localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
 
-    // 페이지 이동 추가
     setSelectedPost(post);
     setShowPopup(true);
   };
@@ -149,14 +190,28 @@ export default function Repost_list({
   };
 
   const getBadgeColor = (site: string) => {
-    return siteColors[site] || 'gray'; // 사이트에 해당하는 색상을 찾거나 기본 색상인 gray를 반환
+    return siteColors[site] || 'gray';
+  };
+
+  const handleSiteToggle = (site: string) => {
+    let newSelectedSites: string[];
+    if (site === '전체') {
+      newSelectedSites = [];
+    } else {
+      newSelectedSites = selectedSites.includes(site)
+        ? selectedSites.filter((s) => s !== site)
+        : [...selectedSites, site];
+    }
+    setSelectedSites(newSelectedSites);
+    updateFilteredPosts(allPosts, newSelectedSites);
   };
 
   return (
     <div>
+      <SiteFilter selectedSites={selectedSites} onSiteToggle={handleSiteToggle} />
       {posts.length ? (
         posts.map((post) => (
-          <div key={post.id}>
+          <div key={`${post.id}-${post.site}`}>
             <div className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200 lg:w-[948px] mx-auto ">
               <div className="flex justify-between items-center">
                 <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden items-center">

@@ -31,7 +31,10 @@ export default function PointAnimationClick({
         userId ? 'bg-blue-600' : 'bg-red-600'
       } rounded-full p-4 w-60 h-60 aspect-square`}
     >
-      <p className="text-6xl font-bold text-white">{points}</p>
+      <p className="text-6xl font-bold text-white">
+        <span className="text-4xl">+</span>
+        {points}
+      </p>
       {userId ? (
         <p className="text-2xl text-white text-center">포인트 적립!!!</p>
       ) : (

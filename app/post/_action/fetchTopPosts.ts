@@ -12,7 +12,6 @@ dayjs.extend(timezone);
 export async function fetchTopPosts() {
   const supabase = await createSupabaseServerClient();
 
-  // Calculate the date 7 days ago from now
   const now = dayjs().tz('Asia/Seoul');
   const sevenDaysAgo = now.subtract(7, 'day').tz('Asia/Seoul').format();
 

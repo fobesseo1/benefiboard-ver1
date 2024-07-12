@@ -1,4 +1,5 @@
-//_components/SearchBar.tsx
+// app>post>_components/SearchBar.tsx
+
 'use client';
 
 import React, { useState } from 'react';
@@ -17,7 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ initialQuery = '', searchUrl }) =
 
   const handleSearch = () => {
     if (searchTerm.trim() !== '') {
-      router.push(`${searchUrl}?query=${searchTerm}`);
+      router.push(`${searchUrl}?query=${encodeURIComponent(searchTerm)}`);
     }
   };
 
@@ -33,6 +34,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ initialQuery = '', searchUrl }) =
           placeholder="Search posts..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           className="border border-gray-300 rounded-md p-2 pl-10 w-full"
         />
       </div>

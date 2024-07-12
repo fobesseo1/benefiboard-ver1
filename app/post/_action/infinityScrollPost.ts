@@ -64,13 +64,30 @@ export const fetchMoreReposts = async (page: number): Promise<RepostType[]> => {
   return data as RepostType[]; // 수정된 부분
 };
 
-export async function fetchSearchReposts(searchTerm: string, page: number): Promise<RepostType[]> {
+export async function fetchSearchReposts(
+  searchTerm: string,
+  page: number,
+  siteFilter?: string
+): Promise<RepostType[]> {
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('repost_data')
-    .select('*')
-    .ilike('title', `%${searchTerm}%`)
-    .order('order', { ascending: true })
+
+  // 검색어를 공백으로 분리
+  const searchTerms = searchTerm.split(' ').filter((term) => term.length > 0);
+
+  let query = supabase.from('repost_data').select('id, link, title, site, created_at');
+
+  // 각 검색어에 대해 ILIKE 조건 적용
+  searchTerms.forEach((term) => {
+    query = query.ilike('title', `%${term}%`);
+  });
+
+  // 사이트 필터 적용 (옵션)
+  if (siteFilter) {
+    query = query.eq('site', siteFilter);
+  }
+
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
     .range((page - 1) * 10, page * 10 - 1);
 
   if (error) {
@@ -78,7 +95,7 @@ export async function fetchSearchReposts(searchTerm: string, page: number): Prom
     return [];
   }
 
-  return data as RepostType[]; // 수정된 부분
+  return data as RepostType[];
 }
 
 // Fetch more reposts from repost_best_data table

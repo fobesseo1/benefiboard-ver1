@@ -1,12 +1,20 @@
 // app/layout.tsx
+
 import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
-import Status from './_components/Status';
-import { OnboardingProvider } from './_context/OnboardingContext';
-import ClientLayout from './_components/ClientLayout';
 import { getCurrentUser } from '@/lib/cookies';
 import { CurrentUserType } from './page';
+import dynamic from 'next/dynamic';
+import Header from './_components/Header';
+import Footer from './_components/Footer';
+import { Suspense } from 'react';
+import LoadingSpinner from './_components/LoadingSpinner';
+
+const OnboardingProvider = dynamic(
+  () => import('./_context/OnboardingContext').then((mod) => mod.OnboardingProvider),
+  { ssr: false }
+);
 
 const inter = Inter({ subsets: ['latin'] });
 const poppins = Poppins({
@@ -38,13 +46,30 @@ export const metadata: Metadata = {
   },
 };
 
+function UserAwareLayout({
+  children,
+  currentUser,
+}: {
+  children: React.ReactNode;
+  currentUser: CurrentUserType | null;
+}) {
+  return (
+    <>
+      <Header currentUser={currentUser} />
+      <main className="flex-1 tracking-tight text-gray-800 leading-tight pt-16 pb-16 lg:pb-4">
+        <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
+      </main>
+      <Footer currentUser={currentUser} />
+    </>
+  );
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const currentUser: CurrentUserType | null = await getCurrentUser();
-  //console.log('layout currentUser', currentUser);
 
   return (
     <html lang="ko">
@@ -56,9 +81,11 @@ export default async function RootLayout({
         />
         <link rel="icon" href="/logo-benefiboard.svg" />
       </head>
-      <body className={`${notoSansKR.className} flex flex-col min-h-screen`}>
+      <body
+        className={`${notoSansKR.className} ${inter.className} ${poppins.className} flex flex-col min-h-screen`}
+      >
         <OnboardingProvider>
-          <ClientLayout currentUser={currentUser}>{children}</ClientLayout>
+          <UserAwareLayout currentUser={currentUser}>{children}</UserAwareLayout>
         </OnboardingProvider>
       </body>
     </html>

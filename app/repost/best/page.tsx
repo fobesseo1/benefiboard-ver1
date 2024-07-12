@@ -1,12 +1,7 @@
-//app>repost>best>page.tsx
+// app/repost/best/page.tsx
 
 import createSupabaseServerClient from '@/lib/supabse/server';
-
 import { getCurrentUser } from '@/lib/cookies';
-import {
-  fetchMoreBestReposts,
-  fetchSearchBestReposts,
-} from '@/app/post/_action/infinityScrollPost';
 import { CurrentUserType } from '@/app/page';
 import SearchBar from '@/app/post/_component/SearchBar';
 import Repost_list from '../_component/repost_list';
@@ -14,7 +9,6 @@ import Repost_list from '../_component/repost_list';
 export async function fetchLatestBestBatches(limit = 3) {
   const supabase = await createSupabaseServerClient();
 
-  // 최신 회차를 가져오기
   const { data: latestBatches, error: batchError } = await supabase
     .from('repost_best_data')
     .select('batch')
@@ -32,7 +26,6 @@ export async function fetchLatestBestBatches(limit = 3) {
 
   const batches = latestBatches.map((batch) => batch.batch);
 
-  // 최신 회차의 데이터 가져오기
   const { data: posts, error: postsError } = await supabase
     .from('repost_best_data')
     .select('*')
@@ -70,8 +63,8 @@ export default async function RepostBestPage() {
         <Repost_list
           initialPosts={repostData}
           currentUser={currentUser ?? null}
-          fetchMoreReposts={fetchMoreBestReposts} // 수정된 부분
-          fetchSearchReposts={fetchSearchBestReposts} // 추가된 부분
+          isBestPosts={true}
+          initialSearchTerm=""
         />
       </div>
     </div>

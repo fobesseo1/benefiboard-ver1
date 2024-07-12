@@ -68,7 +68,9 @@ export function AdContentCard({ handleAdClick, handleAdClose }: AdContentCardPro
 
   return (
     <Card
-      className={`w-[320px] lg:w-[400px] transition-opacity duration-300 ${isDraggingFeedback ? 'opacity-50' : 'opacity-100'}`}
+      className={`w-[320px] lg:w-[400px] transition-opacity duration-300 z-[1002] ${
+        isDraggingFeedback ? 'opacity-50' : 'opacity-100'
+      }`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handleEnd}
