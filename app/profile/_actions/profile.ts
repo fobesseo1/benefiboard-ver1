@@ -1,4 +1,4 @@
-// server.ts
+// app>profile>_actions>profile.ts
 
 'use server';
 
@@ -19,13 +19,17 @@ export interface ProfileType {
   gender?: 'male' | 'female' | 'Let me see';
   location?: string;
   current_points?: number;
+  donation_id?: string;
+  partner_name?: string;
 }
 
 export const fetchProfileById = async (id: string): Promise<ProfileType> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('userdata')
-    .select('id, email, username, avatar_url, birthday, gender, location, current_points')
+    .select(
+      'id, email, username, avatar_url, birthday, gender, location, current_points, donation_id'
+    )
     .eq('id', id)
     .single();
 
@@ -34,6 +38,43 @@ export const fetchProfileById = async (id: string): Promise<ProfileType> => {
   }
 
   return data;
+};
+
+export const fetchPartnerUsers = async () => {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('userdata')
+    .select('id, partner_name, category')
+    .eq('user_type', 'partner');
+
+  if (error) {
+    console.error('Error fetching partner users:', error);
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('userdata')
+    .select('id')
+    .eq('username', username)
+    .single();
+
+  if (error && error.code === 'PGRST116') {
+    // PGRST116 error means no rows were returned, so the username is available
+    return true;
+  }
+
+  if (error) {
+    console.error('Error checking username availability:', error);
+    throw new Error(error.message);
+  }
+
+  // If data exists, the username is not available
+  return !data;
 };
 
 export const updateProfile = async (formData: FormData) => {
@@ -48,6 +89,7 @@ export const updateProfile = async (formData: FormData) => {
   const gender = formData.get('gender') as string;
   const location = formData.get('location') as string;
   const avatarFile = formData.get('avatar') as File | null;
+  const donation_id = formData.get('donation_id') as string;
 
   const existingProfile = await fetchProfileById(userId);
   const oldAvatarUrl = existingProfile.avatar_url || '';
@@ -69,6 +111,8 @@ export const updateProfile = async (formData: FormData) => {
   if (birthday && birthday !== existingProfile.birthday) updatedFields.birthday = birthday;
   if (gender && gender !== existingProfile.gender) updatedFields.gender = gender;
   if (location && location !== existingProfile.location) updatedFields.location = location;
+  if (donation_id && donation_id !== existingProfile.donation_id)
+    updatedFields.donation_id = donation_id;
 
   console.log('Updating userdata with:', updatedFields);
 
@@ -102,6 +146,7 @@ export const updateProfile = async (formData: FormData) => {
     birthday,
     gender,
     location,
+    donation_id,
   };
 
   cookies().set('currentUser', JSON.stringify(updatedUserData), {
@@ -111,9 +156,6 @@ export const updateProfile = async (formData: FormData) => {
     path: '/',
     sameSite: 'lax',
   });
-
-  /* revalidatePath('/');
-  redirect('/'); */
 
   return updatedUserData;
 };

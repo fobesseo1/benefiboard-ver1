@@ -33,7 +33,7 @@ const MessageList: React.FC<MessageListProps> = ({ currentUserId }) => {
   return (
     <div>
       <MessageFilter filter={filter} setFilter={setFilter} />
-      <div className="flex flex-col px-4 pt-4 ">
+      <div className=" flex flex-col px-4 pt-4 ">
         <InfiniteScrollMessages
           initialMessages={initialMessages}
           filter={filter}

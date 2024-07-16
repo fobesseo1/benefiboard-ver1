@@ -6,22 +6,18 @@ $emoji-white-color: #ffffff;
 $emoji-black-color: #000000;
 $emoji-text-color: #8a8a8a;
 
-/* body {
-  text-align: center;
-  margin: 80px auto 0;
-  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
-} */
-
 .emoji {
   width: 120px;
   height: 120px;
-  margin: 15px 15px 40px;
   background: $emoji-base-color;
-  display: inline-block;
   border-radius: 50%;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
   &:after {
+    content: '';
     position: absolute;
     bottom: -40px;
     font-size: 18px;
@@ -29,6 +25,12 @@ $emoji-text-color: #8a8a8a;
     left: calc(50% - 30px);
     color: $emoji-text-color;
   }
+}
+
+.emoji-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
 }
 
 .emoji__face,

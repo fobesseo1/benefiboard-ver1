@@ -2,9 +2,9 @@
 
 import createSupabaseServerClient from '@/lib/supabse/server';
 import { getCurrentUser } from '@/lib/cookies';
-import { CurrentUserType } from '@/app/page';
 import SearchBar from '@/app/post/_component/SearchBar';
 import Repost_list from '../_component/repost_list';
+import { CurrentUserType } from '@/types/types';
 
 export async function fetchLatestBestBatches(limit = 3) {
   const supabase = await createSupabaseServerClient();
@@ -55,11 +55,14 @@ export default async function RepostBestPage() {
 
   const currentUser: CurrentUserType | null = await getCurrentUser();
 
+  // 검색 제안을 위해 제목 목록 생성
+  const searchSuggestions = Array.from(new Set(repostData.map((post) => post.title)));
+
   return (
     <div className="pt-4">
       <div className="flex flex-col px-6 pt-2 lg:w-[984px] mx-auto">
         <h1 className="text-2xl font-semibold">Best Repost</h1>
-        <SearchBar searchUrl="/repost/search/best" />
+        <SearchBar searchUrl="/repost/search/best" suggestions={searchSuggestions} />
         <Repost_list
           initialPosts={repostData}
           currentUser={currentUser ?? null}

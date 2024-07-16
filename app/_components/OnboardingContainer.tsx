@@ -2,8 +2,7 @@
 import { Suspense } from 'react';
 import OnboardingLogic from './OnboardingLogic';
 import LoadingSpinner from './LoadingSpinner';
-import { PostType } from '../post/types';
-import { CurrentUserType } from '../page';
+import { CurrentUserType, PostType } from '../../types/types';
 import { RepostType } from '../repost/_component/repost_list';
 
 interface OnboardingContainerProps {

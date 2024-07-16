@@ -4,7 +4,7 @@ import createSupabaseServerClient from '@/lib/supabse/server';
 import RepostDetailClient from '../_component/RepostDetailClient';
 import { getCurrentUser } from '@/lib/cookies';
 import Ad_Handler from '@/app/_components/Ad_Handler';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function RepostDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;

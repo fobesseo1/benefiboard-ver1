@@ -32,17 +32,3 @@ export const calculatePoints = (): number[] => {
 
   return points;
 };
-
-/* export async function fetchIpAddress(): Promise<string> {
-  try {
-    const response = await fetch('/api/get-ip');
-    if (!response.ok) {
-      throw new Error('Failed to fetch IP address');
-    }
-    const data = await response.json();
-    return data.ip;
-  } catch (error) {
-    console.error('Failed to fetch IP address:', error);
-    return 'Unknown IP';
-  }
-} */

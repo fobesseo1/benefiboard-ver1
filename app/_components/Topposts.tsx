@@ -6,15 +6,17 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { SlBubble, SlEye, SlHeart } from 'react-icons/sl';
 import { listformatDate } from '@/lib/utils/formDate';
-import { PostType } from '../post/types';
+import { CurrentUserType, PostType } from '../../types/types';
+import { addDonationPoints, addWritingPoints } from '../post/_action/adPointSupabase';
 
 type TopPostsProps = {
   posts: PostType[];
   userId?: string | null;
   searchTerm?: string;
+  currentUser: CurrentUserType | null;
 };
 
-export default function TopPosts({ posts, userId }: TopPostsProps) {
+export default function TopPosts({ posts, userId, currentUser }: TopPostsProps) {
   const router = useRouter();
   const [readPosts, setReadPosts] = useState<string[]>([]);
 
@@ -30,9 +32,44 @@ export default function TopPosts({ posts, userId }: TopPostsProps) {
     console.log('Received posts:', posts);
   }, [posts]);
 
-  const handlePostClick = (postId: string) => {
+  const handlePostClick = async (postId: string) => {
+    console.log('postId click', postId);
+    const post = posts.find((p) => p.id === postId);
+    if (post) {
+      try {
+        const result = await addWritingPoints(post.author_id, 5);
+        if (result) {
+          console.log(`Added 5 points to author ${post.author_id}`);
+        } else {
+          console.error(`Failed to add points to author ${post.author_id}`);
+        }
+
+        // Add donation points
+        console.log('currentUser dodododo', currentUser);
+        if (currentUser && currentUser.donation_id) {
+          const donationResult = await addDonationPoints(
+            currentUser.id,
+            currentUser.donation_id,
+            5
+          );
+          if (donationResult) {
+            console.log(
+              `Added 5 donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          } else {
+            console.error(
+              `Failed to add donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error adding points:', error);
+      }
+    }
+
     const readPostsKey = `readPosts_${userId}`;
     const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
+
     const updatedReadPosts = Array.from(new Set([...storedReadPosts, postId]));
 
     setReadPosts(updatedReadPosts);

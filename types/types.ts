@@ -1,3 +1,14 @@
+export type CurrentUserType = {
+  id: string;
+  username: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  current_points: number;
+  donation_id: string | null;
+  partner_name: string | null;
+  unread_messages_count: number;
+};
+
 export type PostType = {
   id: string;
   author_id: string;

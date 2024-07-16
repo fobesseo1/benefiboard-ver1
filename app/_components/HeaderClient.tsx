@@ -3,7 +3,7 @@
 import UserProfileCard from './UserProfileCard';
 import HeaderBackClick from './HeaderBackClick';
 import HeaderCommonSheet from './HeaderCommonSheet';
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 
 interface HeaderClientProps {
   currentUser: CurrentUserType | null;

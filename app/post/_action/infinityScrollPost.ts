@@ -1,7 +1,7 @@
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
-import { PostType } from '../types';
+import { PostType } from '../../../types/types';
 import { RepostType } from '@/app/repost/_component/repost_list';
 
 export const fetchMorePosts = async (page: number, categoryId?: string) => {

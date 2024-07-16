@@ -1,9 +1,18 @@
-// app/repost/_actions/repostActions.ts:
+// app/repost/_actions/repostActions.ts
 
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
 import { RepostType } from '../_component/repost_list';
+
+function buildSearchQuery(query: string | null) {
+  if (!query) return null;
+
+  const trimmedQuery = query.trim();
+  if (trimmedQuery.length === 0) return null;
+
+  return trimmedQuery;
+}
 
 export async function fetchReposts(
   query: string | null,
@@ -15,10 +24,9 @@ export async function fetchReposts(
 
   let supabaseQuery = supabase.from('repost_data').select('*', { count: 'exact' });
 
-  if (query) {
-    const searchTerms = query.split(' ').filter((term) => term.length > 0);
-    const searchConditions = searchTerms.map((term) => `title.ilike.%${term}%`);
-    supabaseQuery = supabaseQuery.or(searchConditions.join(','));
+  const searchTerm = buildSearchQuery(query);
+  if (searchTerm) {
+    supabaseQuery = supabaseQuery.filter('title', 'ilike', `%${searchTerm}%`);
   }
 
   if (sites.length > 0) {
@@ -47,10 +55,9 @@ export async function fetchBestReposts(
 
   let supabaseQuery = supabase.from('repost_best_data').select('*', { count: 'exact' });
 
-  if (query) {
-    const searchTerms = query.split(' ').filter((term) => term.length > 0);
-    const searchConditions = searchTerms.map((term) => `title.ilike.%${term}%`);
-    supabaseQuery = supabaseQuery.or(searchConditions.join(','));
+  const searchTerm = buildSearchQuery(query);
+  if (searchTerm) {
+    supabaseQuery = supabaseQuery.filter('title', 'ilike', `%${searchTerm}%`);
   }
 
   const { data, error, count } = await supabaseQuery

@@ -2,9 +2,9 @@ import { getCurrentUser } from '@/lib/cookies';
 import { Suspense, lazy } from 'react';
 import Breadcrumbs from '../../_component/Breadcrumbs';
 import createSupabaseServerClient from '@/lib/supabse/server';
-import AdFixedPage from '@/app/_components/Ad_Bottom';
-import { CurrentUserType } from '@/app/page';
 import dynamic from 'next/dynamic';
+import Ad_Rectangle_Updown from '@/app/_components/Ad-Rectangle_Updown';
+import { CurrentUserType } from '@/types/types';
 
 const PostHeader = lazy(() => import('../../_component/PostHeader'));
 const PostContent = lazy(() => import('../../_component/PostContent'));
@@ -41,7 +41,8 @@ export default async function PostDetailPage({ params }: { params: { id: string 
           point={currentUser?.current_points ?? 0}
         />
       </Suspense>
-      <AdFixedPage />
+      <Ad_Rectangle_Updown />
+
       {post?.images && (
         <div className="flex flex-col gap-4">
           {post.images.map((image: string, index: number) => (
@@ -64,7 +65,12 @@ export default async function PostDetailPage({ params }: { params: { id: string 
           initialPost={post}
         />
       </Suspense>
-      <AdPopupWrapper currentUser={currentUser} postId={id} authorId={post?.author_id} />
+      <AdPopupWrapper
+        currentUser={currentUser}
+        postId={id}
+        authorId={post?.author_id}
+        donationPoints={0}
+      />
     </div>
   );
 }

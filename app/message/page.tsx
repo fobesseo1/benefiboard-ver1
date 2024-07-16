@@ -9,5 +9,9 @@ export default async function MessagePage() {
     return <div>로그인이 필요합니다.</div>;
   }
 
-  return <MessageList currentUserId={currentUser.id} />;
+  return (
+    <div className="lg:w-[948px] mx-auto">
+      <MessageList currentUserId={currentUser.id} />
+    </div>
+  );
 }

@@ -1,15 +1,14 @@
 // app/_components/Header.tsx
 import Link from 'next/link';
-import { CurrentUserType } from '../page';
 import HeaderClient from './HeaderClient';
 import HeaderBackClick from './HeaderBackClick';
 import HeaderCommonSheet from './HeaderCommonSheet';
+import { CurrentUserType } from '@/types/types';
 
 const Header = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
   return (
     <div className="fixed top-0 left-0 z-50 w-full">
       <header className="h-16 bg-white flex items-center justify-between px-6 border-b-[1px] border-gray-200 lg:w-[948px] mx-auto">
-        {/* <HeaderClient currentUser={currentUser} /> */}
         <HeaderBackClick />
         <img
           src="/logo-benefiboard.svg"
@@ -30,11 +29,18 @@ const Header = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
           <div className="flex items-center gap-1 lg:gap-4 justify-center ">
             <div className="flex items-center gap-1 justify-center">
               <Link href={`/profile/${currentUser.id}`}>
-                <img
-                  src={currentUser.avatar_url || '/money-3d-main.png'}
-                  alt="User Avatar"
-                  className="w-10 h-10 rounded-full cursor-pointer"
-                />
+                <div className="relative">
+                  <img
+                    src={currentUser.avatar_url || '/money-3d-main.png'}
+                    alt="User Avatar"
+                    className="w-10 h-10 rounded-full cursor-pointer"
+                  />
+                  {currentUser.unread_messages_count > 0 && (
+                    <div className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {currentUser.unread_messages_count > 99 ? '99+' : currentUser.unread_messages_count}
+                    </div>
+                  )}
+                </div>
               </Link>
               <div className="lg:flex flex-col items-center hidden">
                 <p className="text-sm font-semibold">{currentUser.username}</p>

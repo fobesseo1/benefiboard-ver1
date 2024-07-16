@@ -2,8 +2,8 @@
 
 'use client';
 
+import { CurrentUserType } from '@/types/types';
 import { useOnboarding } from '../_context/OnboardingContext';
-import { CurrentUserType } from '../page';
 import Footer from './Footer';
 import Header from './Header';
 

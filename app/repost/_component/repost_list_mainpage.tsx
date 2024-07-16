@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react';
 import { listformatDate } from '@/lib/utils/formDate';
 import RepostPopup from './RepostPopup';
 import { useRouter } from 'next/navigation';
-import { CurrentUserType } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
 import classNames from 'classnames'; // classNames 라이브러리 임포트
 import Link from 'next/link';
 import { RepostType } from './repost_list';
+import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
+import { CurrentUserType } from '@/types/types';
 
 type RepostDataProps = {
   initialPosts: RepostType[];
@@ -80,17 +81,37 @@ export default function Repost_list_mainpage({
     setReadPosts(storedReadPosts);
   }, [userId]);
 
-  const handlePostClick = (post: RepostType) => {
+  const handlePostClick = async (post: RepostType) => {
     const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
     const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
 
-    // 중복 항목 제거 및 새로운 포스트 ID 추가
     const updatedReadPosts = Array.from(new Set([...storedReadPosts, post.id.toString()]));
 
     setReadPosts(updatedReadPosts);
     localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
 
-    // 페이지 이동 추가
+    // 기부 포인트 추가 로직
+    if (currentUserState && currentUserState.donation_id) {
+      try {
+        const donationResult = await addDonationPoints(
+          currentUserState.id,
+          currentUserState.donation_id,
+          5 // 기부 포인트 금액, 필요에 따라 조정 가능
+        );
+        if (donationResult) {
+          console.log(
+            `Added 5 donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
+          );
+        } else {
+          console.error(
+            `Failed to add donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
+          );
+        }
+      } catch (error) {
+        console.error('Error adding donation points:', error);
+      }
+    }
+
     setSelectedPost(post);
     setShowPopup(true);
   };

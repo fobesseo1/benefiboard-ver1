@@ -1,10 +1,9 @@
 //lib>cookies.ts
 
 'use server';
-
-import { CurrentUserType } from '@/app/page';
 import { cache } from 'react';
 import createSupabaseServerClient from './supabse/server';
+import { CurrentUserType } from '@/types/types';
 
 export const getCurrentUser = cache(async (): Promise<CurrentUserType | null> => {
   const supabase = await createSupabaseServerClient();
@@ -22,7 +21,9 @@ export const getCurrentUser = cache(async (): Promise<CurrentUserType | null> =>
 
     const { data: userData, error: dataError } = await supabase
       .from('userdata')
-      .select('id, username, email, avatar_url, current_points')
+      .select(
+        'id, username, email, avatar_url, current_points, donation_id, partner_name, unread_messages_count '
+      )
       .eq('id', user.id)
       .single();
 
@@ -52,5 +53,7 @@ export async function getCurrentUserInfo() {
     avatar_url: currentUser.avatar_url ?? '',
     point: currentUser.current_points ?? 0,
     current_points: currentUser.current_points ?? 0,
+    donation_id: currentUser.donation_id ?? '',
+    partner_name: currentUser.partner_name ?? '',
   };
 }

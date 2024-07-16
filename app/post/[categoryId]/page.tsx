@@ -6,7 +6,7 @@ import { findCategoryNameById } from '../_action/category';
 import SearchBar from '../_component/SearchBar';
 import InfiniteScrollPosts from '../_component/InfiniteScrollPosts';
 import FixedIconGroup from '../_component/FixedIconGroup';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function PostListPageByCategory({
   params,
@@ -68,14 +68,18 @@ export default async function PostListPageByCategory({
   // console.log('categoryInitial', initialPosts);
   // console.log('Category ID:', categoryId); // 카테고리 ID 로그 출력
 
+  // 검색 제안을 위해 제목 목록 생성
+  const searchSuggestions = Array.from(new Set(postsData.map((post) => post.title)));
+
   return (
     <div className="pt-4">
-      <SearchBar searchUrl="/post/search" />
+      <SearchBar searchUrl="/post/search" suggestions={searchSuggestions} />
 
       <div className="flex flex-col px-4 pt-4 ">
         <InfiniteScrollPosts
           initialPosts={initialPosts}
           userId={currentUser?.id ?? null}
+          currentUser={currentUser}
           categoryId={categoryId} // 카테고리 ID 전달
         />
       </div>

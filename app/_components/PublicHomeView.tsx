@@ -1,24 +1,24 @@
 // app/_components/PublicHomeView.tsx
-'use client';
 
-import { useState } from 'react';
-import TopPosts from './Topposts';
+import TopPosts from './TopPosts';
 import Link from 'next/link';
-import AdFixedPage from './Ad_Bottom';
-import { PostType } from '../post/types';
+import { CurrentUserType, PostType } from '../../types/types';
 import { RepostType } from '../repost/_component/repost_list';
 import Repost_list_mainpage from '../repost/_component/repost_list_mainpage';
+import Ad_Rectangle_Updown from './Ad-Rectangle_Updown';
 
 interface PublicHomeViewProps {
   postsWithCategoryNames: PostType[];
   bestReposts: RepostType[];
   basicReposts: RepostType[];
+  currentUser: CurrentUserType | null;
 }
 
 export const PublicHomeView = ({
   postsWithCategoryNames,
   bestReposts,
   basicReposts,
+  currentUser,
 }: PublicHomeViewProps) => {
   if (!postsWithCategoryNames.length) {
     // 여기서는 window.location.reload()를 사용하지 않고,
@@ -60,7 +60,7 @@ export const PublicHomeView = ({
       {/* 추천 콘텐츠 */}
       <div className="w-full  flex flex-col justify-center items-center">
         <h2 className="text-xl font-semibold lg:my-4 my-2">이번 주 인기 게시물</h2>
-        <TopPosts posts={postsWithCategoryNames} userId={null} />
+        <TopPosts posts={postsWithCategoryNames} userId={null} currentUser={currentUser} />
       </div>
 
       <hr className="my-4 mx-auto border-gray-200 w-full" />
@@ -78,7 +78,7 @@ export const PublicHomeView = ({
       <hr className="my-4 mx-auto border-gray-200 w-full" />
       {/* 광고배너 */}
       <div className="w-full">
-        <AdFixedPage />
+        <Ad_Rectangle_Updown />
       </div>
     </div>
   );

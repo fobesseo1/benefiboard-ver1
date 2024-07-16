@@ -1,10 +1,9 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { calculatePoints } from '../post/_action/adPoint';
 import AdAlert from '../post/_component/AdAlert';
 import createSupabaseBrowserClient from '@/lib/supabse/client';
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 
 interface RoundData {
   round_points: number[];
@@ -42,7 +41,6 @@ const Ad_Handler = ({
 
           if (error) {
             console.error('Error fetching user round data:', error.message);
-            // If no data found, create new data
             if (error.code === 'PGRST116') {
               const newRoundData = {
                 user_id: currentUser.id,
@@ -83,7 +81,7 @@ const Ad_Handler = ({
   }, [currentUser]);
 
   const animationExecuted =
-    typeof window !== 'undefined' && localStorage.getItem(`post_${postId}_animation_executed`);
+    typeof window !== 'undefined' && localStorage.getItem(`post${postId}_animation_executed`);
 
   console.log('Rendering Ad_Handler', { initialRoundData, currentUser, postId, animationExecuted });
 
@@ -97,6 +95,7 @@ const Ad_Handler = ({
           initialRoundData={initialRoundData}
           author_id={authorId}
           initialPoints={initialPoints}
+          currentUser={currentUser}
         />
       </div>
     )

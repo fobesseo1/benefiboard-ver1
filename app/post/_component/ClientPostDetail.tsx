@@ -17,7 +17,7 @@ import {
   updateComment,
   deleteComment,
 } from '../_action/comments';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 interface Comment {
   id: number;

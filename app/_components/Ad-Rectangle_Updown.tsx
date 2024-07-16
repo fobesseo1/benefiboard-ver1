@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-export default function AdFixedPage() {
+export default function Ad_Rectangle_Updown() {
   useEffect(() => {
     const timer = setTimeout(() => {
       const banner = document.querySelector('.ad-banner');

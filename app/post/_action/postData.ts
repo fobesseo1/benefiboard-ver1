@@ -25,6 +25,6 @@ export const getPostsData = async (limit: number = 10) => {
 
   return data.map((post: any) => ({
     ...post,
-    created_at: post.created_at ? post.created_at.toISOString() : null,
+    created_at: post.created_at ? new Date(post.created_at).toISOString() : null,
   }));
 };

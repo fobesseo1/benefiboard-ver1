@@ -111,7 +111,10 @@ export default function MessageForm({
       <h1 className="text-2xl font-bold mb-4 text-gray-800">쪽지 작성 페이지</h1>
       <form onSubmit={totalFormData} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="receiver_username">받는 사람</Label>
+          <Label htmlFor="receiver_username">
+            받는 사람
+            <span className=" ml-2 text-xs text-gray-600">＊유저의 닉네임을 입력해주세요＊</span>
+          </Label>
           <Input
             type="text"
             name="receiver_username"

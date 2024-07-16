@@ -4,9 +4,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
 import { useDrag } from '@use-gesture/react';
 import Ad_Handler from '@/app/_components/Ad_Handler';
-import { CurrentUserType } from '@/app/page';
-import AdRepostUpdowndPage from '@/app/_components/Ad_repost_updown';
 import { Button } from '@/components/ui/button';
+import Ad_Square_Updown from '@/app/_components/Ad_Square_Updown';
+import { CurrentUserType } from '@/types/types';
 
 interface RepostType {
   id: number;
@@ -69,7 +69,7 @@ export default function RepostPopup({ post, currentUser, onClose }: RepostPopupP
   }, [isDragging]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-lg overflow-hidden">
         <div
           {...bind()}
@@ -85,7 +85,7 @@ export default function RepostPopup({ post, currentUser, onClose }: RepostPopupP
             <h2 className="ml-2 text-xl font-semibold">Detail Repost</h2>
           </div>
 
-          <AdRepostUpdowndPage />
+          <Ad_Square_Updown />
 
           <Ad_Handler
             currentUser={currentUser}

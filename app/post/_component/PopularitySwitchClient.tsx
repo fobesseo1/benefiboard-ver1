@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import InfiniteScrollPosts from './InfiniteScrollPosts';
 import PopularitySwitch from './PopularitySwitch';
-import { PostType } from '../types';
+import { PostType } from '../../../types/types';
 
 interface PopularitySwitchClientProps {
   initialPosts: PostType[];

@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from 'react';
 import { listformatDate } from '@/lib/utils/formDate';
 import RepostPopup from './RepostPopup';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CurrentUserType } from '@/app/page';
 import { Badge } from '@/components/ui/badge';
 import classNames from 'classnames';
 import { fetchReposts, fetchBestReposts } from '../_actions/repostActions';
 import SiteFilter, { siteColors } from './SiteFilter';
+import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
+import { CurrentUserType } from '@/types/types';
 
 export type RepostType = {
   id: number;
@@ -51,7 +52,7 @@ export default function Repost_list({
   const searchParams = useSearchParams();
   const userId = currentUser?.id;
 
-  const urlSearchTerm = searchParams.get('query');
+  const urlSearchTerm = useSearchParams().get('query');
   const effectiveSearchTerm = propSearchTerm || urlSearchTerm || initialSearchTerm;
 
   useEffect(() => {
@@ -105,10 +106,8 @@ export default function Repost_list({
       setLoading(false);
     };
 
-    if (effectiveSearchTerm || initialPosts.length === 0) {
-      fetchInitialPosts();
-    }
-  }, [effectiveSearchTerm, isBestPosts, initialPosts.length]);
+    fetchInitialPosts();
+  }, [effectiveSearchTerm, isBestPosts]);
 
   const fetchMorePosts = async () => {
     if (loading || !hasMore) return;
@@ -167,7 +166,7 @@ export default function Repost_list({
     };
   }, [loading, hasMore]);
 
-  const handlePostClick = (post: RepostType) => {
+  const handlePostClick = async (post: RepostType) => {
     const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
     const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
 
@@ -175,6 +174,28 @@ export default function Repost_list({
 
     setReadPosts(updatedReadPosts);
     localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
+
+    // 기부 포인트 추가 로직
+    if (currentUserState && currentUserState.donation_id) {
+      try {
+        const donationResult = await addDonationPoints(
+          currentUserState.id,
+          currentUserState.donation_id,
+          5 // 기부 포인트 금액, 필요에 따라 조정 가능
+        );
+        if (donationResult) {
+          console.log(
+            `Added 5 donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
+          );
+        } else {
+          console.error(
+            `Failed to add donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
+          );
+        }
+      } catch (error) {
+        console.error('Error adding donation points:', error);
+      }
+    }
 
     setSelectedPost(post);
     setShowPopup(true);

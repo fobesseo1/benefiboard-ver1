@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AlertDialog } from '@/components/ui/alert-dialog';
 import {
+  addDonationPoints,
   addUserClickPoints,
   addUserPoints,
   addWritingClickPoints,
@@ -8,6 +9,7 @@ import {
 import { PointAnimation } from './PointAnimation';
 import { AdContentCard } from './AdContent';
 import { useDrag } from '@/hooks/useDrag';
+import { CurrentUserType } from '@/types/types';
 
 const AD_URL = 'https://www.google.com';
 
@@ -17,12 +19,14 @@ export default function AdAlert({
   initialRoundData,
   author_id,
   initialPoints,
+  currentUser,
 }: {
   userId: string | null;
   postId: string | null;
   initialRoundData: any;
   author_id: string | null;
   initialPoints: number;
+  currentUser: CurrentUserType | null;
 }) {
   const [showAd, setShowAd] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -30,6 +34,7 @@ export default function AdAlert({
   const [adClickPoints, setAdClickPoints] = useState(0);
   const [showAdClickAnimation, setShowAdClickAnimation] = useState(false);
   const animationExecutedRef = useRef(false);
+  const pointsAddedRef = useRef(false);
 
   const handleAdClose = useCallback(() => {
     setShowAd(false);
@@ -39,8 +44,10 @@ export default function AdAlert({
 
   const handleAnimationEnd = useCallback(
     (newPoints: number) => {
-      if (animationExecutedRef.current) return;
+      if (animationExecutedRef.current || pointsAddedRef.current) return;
       animationExecutedRef.current = true;
+      pointsAddedRef.current = true;
+
       setPoints((prevPoints) => prevPoints + newPoints);
       if (userId) {
         addUserPoints(userId, newPoints);
@@ -67,11 +74,34 @@ export default function AdAlert({
       await addWritingClickPoints(author_id);
     }
 
+    // 기부 포인트 추가 로직
+    if (currentUser && currentUser.donation_id) {
+      const donationPoints = 500; // 기부 포인트 금액, 필요에 따라 조정 가능
+      try {
+        const donationResult = await addDonationPoints(
+          currentUser.id,
+          currentUser.donation_id,
+          donationPoints
+        );
+        if (donationResult) {
+          console.log(
+            `Added ${donationPoints} donation points from ${currentUser.id} to ${currentUser.donation_id}`
+          );
+        } else {
+          console.error(
+            `Failed to add donation points from ${currentUser.id} to ${currentUser.donation_id}`
+          );
+        }
+      } catch (error) {
+        console.error('Error adding donation points:', error);
+      }
+    }
+
     setTimeout(() => {
       window.open(AD_URL, '_blank');
       setShowAd(false);
     }, 2500);
-  }, [userId, author_id]);
+  }, [userId, author_id, currentUser]);
 
   useEffect(() => {
     setShowAnimation(true);
@@ -79,16 +109,17 @@ export default function AdAlert({
 
   return (
     <>
-      <div className="fixed inset-0 z-[1000] pointer-events-none">
-        {showAnimation && (
+      {showAnimation && (
+        <div className="fixed inset-0 z-[1000] pointer-events-none">
           <PointAnimation
             userId={userId}
             initialRoundData={initialRoundData}
             initialPoints={initialPoints}
             onAnimationEnd={handleAnimationEnd}
           />
-        )}
-      </div>
+        </div>
+      )}
+
       {showAd && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-75 z-[1001]" />
@@ -100,6 +131,7 @@ export default function AdAlert({
               onClick={(event) => event.stopPropagation()}
             >
               <div className="relative" style={{ transform: getTransformStyle() }}>
+                <p>컨텐트카드</p>
                 <AdContentCard handleAdClick={handleAdClick} handleAdClose={handleAdClose} />
               </div>
             </div>

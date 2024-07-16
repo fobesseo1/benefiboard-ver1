@@ -13,7 +13,7 @@ export async function fetchTopPosts() {
   const supabase = await createSupabaseServerClient();
 
   const now = dayjs().tz('Asia/Seoul');
-  const sevenDaysAgo = now.subtract(7, 'day').tz('Asia/Seoul').format();
+  const sevenDaysAgo = now.subtract(28, 'day').tz('Asia/Seoul').format();
 
   // Fetch posts created in the last 7 days, sorted by views in descending order
   const { data, error } = await supabase

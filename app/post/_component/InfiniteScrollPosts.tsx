@@ -1,4 +1,4 @@
-//app>post>_components>AdAlert.tsx
+//app>post>_components>InfiniteScrollPosts.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -7,21 +7,24 @@ import { useRouter } from 'next/navigation';
 import { SlBubble, SlEye, SlHeart } from 'react-icons/sl';
 import { listformatDate } from '@/lib/utils/formDate';
 import { fetchMorePosts, fetchSearchPosts } from '../_action/infinityScrollPost';
-import { PostType } from '../types';
-import { addWritingPoints } from '../_action/adPointSupabase';
+import { CurrentUserType, PostType } from '../../../types/types';
+import { addWritingPoints, addDonationPoints } from '../_action/adPointSupabase';
+import { getCurrentUser } from '@/lib/cookies';
 
 type InfiniteScrollPostsProps = {
   initialPosts: PostType[];
   userId?: string | null;
   searchTerm?: string;
-  categoryId?: string; // 카테고리 ID를 선택적으로 받음
+  categoryId?: string;
+  currentUser: CurrentUserType | null;
 };
 
 export default function InfiniteScrollPosts({
   initialPosts,
   userId,
   searchTerm,
-  categoryId, // 카테고리 ID를 선택적으로 받음
+  categoryId,
+  currentUser,
 }: InfiniteScrollPostsProps) {
   const [posts, setPosts] = useState<PostType[]>(initialPosts);
   const [loading, setLoading] = useState(false);
@@ -30,8 +33,6 @@ export default function InfiniteScrollPosts({
   const [readPosts, setReadPosts] = useState<string[]>([]);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  //console.log('post writerId', posts[0].author_id);
 
   useEffect(() => {
     const clearLocalStorageDaily = () => {
@@ -68,7 +69,7 @@ export default function InfiniteScrollPosts({
       setLoading(true);
       const newPosts = searchTerm
         ? await fetchSearchPosts(searchTerm, page)
-        : await fetchMorePosts(page, categoryId); // categoryId를 전달하여 필터링
+        : await fetchMorePosts(page, categoryId);
       if (newPosts.length > 0) {
         setPosts((prev) => [...prev, ...newPosts]);
         setPage((prev) => prev + 1);
@@ -98,21 +99,48 @@ export default function InfiniteScrollPosts({
   };
 
   const handlePostClick = async (postId: string) => {
-    const post = posts.find((p) => p.id === postId); // 클릭한 포스트 찾기
+    console.log('postId click', postId);
+    const post = posts.find((p) => p.id === postId);
     if (post) {
-      await addWritingPoints(post.author_id, 5); // 포스트 작성자에게 5포인트 추가
+      try {
+        const result = await addWritingPoints(post.author_id, 5);
+        if (result) {
+          console.log(`Added 5 points to author ${post.author_id}`);
+        } else {
+          console.error(`Failed to add points to author ${post.author_id}`);
+        }
+
+        // Add donation points
+        console.log('currentUser dodododo', currentUser);
+        if (currentUser && currentUser.donation_id) {
+          const donationResult = await addDonationPoints(
+            currentUser.id,
+            currentUser.donation_id,
+            5
+          );
+          if (donationResult) {
+            console.log(
+              `Added 5 donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          } else {
+            console.error(
+              `Failed to add donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error adding points:', error);
+      }
     }
 
     const readPostsKey = `readPosts_${userId}`;
     const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
 
-    // 중복 항목 제거 및 새로운 포스트 ID 추가
     const updatedReadPosts = Array.from(new Set([...storedReadPosts, postId]));
 
     setReadPosts(updatedReadPosts);
     localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
 
-    // 페이지 이동 추가
     const detailUrl = `/post/detail/${postId}`;
     router.push(detailUrl);
   };

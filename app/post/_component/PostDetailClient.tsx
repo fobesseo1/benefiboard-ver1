@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
-import { CurrentUserType } from '@/app/page';
 import RepostPopup from '@/app/repost/_component/RepostPopup';
+import { CurrentUserType } from '@/types/types';
 
 type PostType = {
   id: string;
@@ -42,7 +42,6 @@ export default function PostDetailClient({ post, currentUser }: PostDetailClient
           }}
           currentUser={currentUser}
           onClose={closePopup}
-          isPostDetailPage={true}
         />
       )}
     </>

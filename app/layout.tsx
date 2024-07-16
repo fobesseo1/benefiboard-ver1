@@ -4,17 +4,11 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import { getCurrentUser } from '@/lib/cookies';
-import { CurrentUserType } from './page';
-import dynamic from 'next/dynamic';
 import Header from './_components/Header';
 import Footer from './_components/Footer';
 import { Suspense } from 'react';
 import LoadingSpinner from './_components/LoadingSpinner';
-
-const OnboardingProvider = dynamic(
-  () => import('./_context/OnboardingContext').then((mod) => mod.OnboardingProvider),
-  { ssr: false }
-);
+import { CurrentUserType } from '@/types/types';
 
 const inter = Inter({ subsets: ['latin'] });
 const poppins = Poppins({
@@ -84,9 +78,7 @@ export default async function RootLayout({
       <body
         className={`${notoSansKR.className} ${inter.className} ${poppins.className} flex flex-col min-h-screen`}
       >
-        <OnboardingProvider>
-          <UserAwareLayout currentUser={currentUser}>{children}</UserAwareLayout>
-        </OnboardingProvider>
+        <UserAwareLayout currentUser={currentUser}>{children}</UserAwareLayout>
       </body>
     </html>
   );

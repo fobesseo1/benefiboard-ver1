@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function MessageCreatePage() {
   const currentUser: CurrentUserType | null = await getCurrentUser();
@@ -14,7 +14,7 @@ export default async function MessageCreatePage() {
   if (!currentUser) {
     console.log('nonono');
     return (
-      <div className="w-screen h-height-minus-146 flex flex-col justify-center items-center">
+      <div className="w-screen h-height-minus-146 flex flex-col justify-center items-center lg:w-[948px] mx-auto">
         <div className="flex flex-col items-center justify-center gap-6 mx-6  shadow-lg">
           <Alert>
             <Terminal className="h-4 w-4" />
@@ -39,7 +39,7 @@ export default async function MessageCreatePage() {
   }
 
   return (
-    <div>
+    <div className="lg:w-[948px] mx-auto">
       <MessageForm
         sender_id={currentUser.id}
         sender_name={currentUser.username || ''}

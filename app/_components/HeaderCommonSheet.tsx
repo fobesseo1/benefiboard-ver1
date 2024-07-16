@@ -2,7 +2,7 @@
 
 import { RxHamburgerMenu } from 'react-icons/rx';
 import CommonSheet from './CommonSheet';
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 
 interface HeaderCommonSheetProps {
   currentUser: CurrentUserType | null;

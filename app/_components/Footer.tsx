@@ -1,5 +1,5 @@
 // app/_components/Footer.tsx
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 import FooterClient from './FooterClient';
 
 const Footer = ({ currentUser }: { currentUser: CurrentUserType | null }) => {

@@ -4,8 +4,8 @@
 import { usePathname } from 'next/navigation';
 import { BiDice6, BiHomeAlt2, BiMenu, BiMessageDots, BiPlusCircle } from 'react-icons/bi';
 import CommonSheet from './CommonSheet';
-import { CurrentUserType } from '../page';
 import Link from 'next/link';
+import { CurrentUserType } from '@/types/types';
 
 const FooterClient = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
   const pathname = usePathname();

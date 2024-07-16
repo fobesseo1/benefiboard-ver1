@@ -15,11 +15,18 @@ const EmojiWrapper: React.FC<EmojiProps> = ({ size = '120px', children, classNam
       style={{
         width: size,
         height: size,
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
       }}
     >
-      {children}
+      <div
+        style={{
+          transform: `scale(${scale})`,
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 };

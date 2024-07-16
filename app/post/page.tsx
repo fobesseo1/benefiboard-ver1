@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/cookies';
 import FixedIconGroup from './_component/FixedIconGroup';
 import { findCategoryNameById } from './_action/category';
 import InfiniteScrollPosts from './_component/InfiniteScrollPosts';
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function PostPage() {
   const supabase = await createSupabaseServerClient();
@@ -34,12 +34,19 @@ export default async function PostPage() {
 
   const currentUser: CurrentUserType | null = await getCurrentUser();
 
+  // 검색 제안을 위해 제목 목록 생성
+  const searchSuggestions = Array.from(new Set(postsData.map((post) => post.title)));
+
   return (
     <div className="pt-4">
-      <SearchBar searchUrl="/post/search" />
+      <SearchBar searchUrl="/post/search" suggestions={searchSuggestions} />
       {/* <PopularitySwitchClient initialPosts={initialPosts} userId={currentUser?.id ?? null} /> */}
       <div className="flex flex-col px-4 pt-4 ">
-        <InfiniteScrollPosts initialPosts={initialPosts} userId={currentUser?.id ?? null} />
+        <InfiniteScrollPosts
+          initialPosts={initialPosts}
+          userId={currentUser?.id ?? null}
+          currentUser={currentUser}
+        />
       </div>
       <FixedIconGroup />
     </div>
