@@ -1,10 +1,10 @@
 // app/repost/search/best/page.tsx
-
 import { getCurrentUser } from '@/lib/cookies';
 import SearchBar from '@/app/post/_component/SearchBar';
-import Repost_list, { RepostType } from '../../_component/repost_list';
-import { fetchLatestBestBatches } from '../../best/page';
+import RepostSearchList from '../../_component/RepostSearchList';
+import { RepostType } from '../../_component/repost_list';
 import { CurrentUserType } from '@/types/types';
+import { fetchLatestBestBatches } from '../../best/page';
 
 export default async function BestRepostSearchPage({
   searchParams,
@@ -12,7 +12,7 @@ export default async function BestRepostSearchPage({
   searchParams: { query: string };
 }) {
   const currentUser: CurrentUserType | null = await getCurrentUser();
-  const query = searchParams.query;
+  const query = searchParams.query || '';
 
   // 검색 제안을 위한 데이터 가져오기
   const { success, data: repostData } = await fetchLatestBestBatches();
@@ -28,12 +28,7 @@ export default async function BestRepostSearchPage({
           searchUrl="/repost/search/best"
           suggestions={titleSuggestions}
         />
-        <Repost_list
-          initialPosts={[]}
-          currentUser={currentUser ?? null}
-          isBestPosts={true}
-          initialSearchTerm={query}
-        />
+        <RepostSearchList currentUser={currentUser} isBestPosts={true} initialSearchTerm={query} />
       </div>
     </div>
   );

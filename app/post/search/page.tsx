@@ -2,30 +2,40 @@
 import createSupabaseServerClient from '@/lib/supabse/server';
 import SearchBar from '../_component/SearchBar';
 import { getCurrentUser } from '@/lib/cookies';
-import InfiniteScrollPosts from '../_component/InfiniteScrollPosts';
+import PagedPosts from '../_component/PagedPosts';
 import FixedIconGroup from '../_component/FixedIconGroup';
 import { CurrentUserType, PostType } from '../../../types/types';
 import { getPostsData } from '../_action/postData';
 
-export async function searchPosts(query: string): Promise<PostType[]> {
+export async function searchPosts(
+  query: string,
+  page: number = 1,
+  limit: number = 20
+): Promise<{ posts: PostType[]; totalCount: number }> {
   const supabase = await createSupabaseServerClient();
-  const result = await supabase
+  const { data, error, count } = await supabase
     .from('post')
-    .select('*')
+    .select('*', { count: 'exact' })
     .ilike('title', `%${query}%`)
     .order('created_at', { ascending: false })
-    .limit(10);
+    .range((page - 1) * limit, page * limit - 1);
 
-  return result.data || [];
+  if (error) {
+    console.error('Error searching posts:', error);
+    return { posts: [], totalCount: 0 };
+  }
+
+  return { posts: data || [], totalCount: count || 0 };
 }
 
 export default async function PostSearchPage({
   searchParams,
 }: {
-  searchParams: { query: string };
+  searchParams: { query: string; page: string };
 }) {
   const query = searchParams.query || '';
-  const initialPosts = await searchPosts(query);
+  const page = parseInt(searchParams.page || '1', 10);
+  const { posts: initialPosts, totalCount } = await searchPosts(query, page);
 
   const currentUser: CurrentUserType | null = await getCurrentUser();
   // 검색 제안을 위한 데이터 가져오기
@@ -46,11 +56,13 @@ export default async function PostSearchPage({
         </div>
       </div>
       <div className="flex flex-col px-4 pt-4 ">
-        <InfiniteScrollPosts
+        <PagedPosts
           initialPosts={initialPosts}
           userId={currentUser?.id ?? null}
           currentUser={currentUser}
           searchTerm={query}
+          totalCount={totalCount}
+          currentPage={page}
         />
       </div>
       <FixedIconGroup />

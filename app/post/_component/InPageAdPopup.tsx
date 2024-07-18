@@ -24,7 +24,7 @@ export default function InPageAdPopup({
   const [isDragging, setIsDragging] = useState(false);
   const [draggingTimeout, setDraggingTimeout] = useState<NodeJS.Timeout | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
-  const AD_URL = 'https://www.google.com';
+  const AD_URL = 'https://link.coupang.com/a/bKbEkY';
 
   const bind = useDrag((state) => {
     setIsDragging(state.active);

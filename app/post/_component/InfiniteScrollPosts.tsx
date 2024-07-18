@@ -1,4 +1,5 @@
 //app>post>_components>InfiniteScrollPosts.tsx
+//삭제예정
 'use client';
 
 import { useEffect, useRef, useState } from 'react';

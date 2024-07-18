@@ -1,51 +1,70 @@
 // app/post/page.tsx
-
+import { cache } from 'react';
 import createSupabaseServerClient from '@/lib/supabse/server';
 import SearchBar from './_component/SearchBar';
 import { getCurrentUser } from '@/lib/cookies';
 import FixedIconGroup from './_component/FixedIconGroup';
 import { findCategoryNameById } from './_action/category';
-import InfiniteScrollPosts from './_component/InfiniteScrollPosts';
-import { CurrentUserType } from '@/types/types';
+import PagedPosts from './_component/PagedPosts';
+import { CurrentUserType, PostType } from '@/types/types';
 
-export default async function PostPage() {
-  const supabase = await createSupabaseServerClient();
-  const result = await supabase
-    .from('post')
-    .select(
-      `
-    id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, 
-    parent_category_id, child_category_id
-  `
-    )
-    .order('created_at', { ascending: false })
-    .limit(10);
+const CACHE_DURATION = 1 * 60 * 1000; // 1분 캐시
 
-  const postsData = result.data || [];
-  console.log('result: postPage', result);
+const fetchInitialPosts = cache(
+  async (
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ posts: PostType[]; totalCount: number }> => {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: postsData,
+      error,
+      count,
+    } = await supabase
+      .from('post')
+      .select(
+        'id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, parent_category_id, child_category_id, likes, dislikes',
+        { count: 'exact' }
+      )
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
 
-  const initialPosts = postsData.map((post) => {
-    return {
-      ...post,
-      parent_category_name: findCategoryNameById(post.parent_category_id),
-      child_category_name: findCategoryNameById(post.child_category_id),
-    };
-  });
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return { posts: [], totalCount: 0 };
+    }
 
+    const initialPosts = await Promise.all(
+      postsData.map(
+        async (post): Promise<PostType> => ({
+          ...post,
+          parent_category_name: await findCategoryNameById(post.parent_category_id),
+          child_category_name: await findCategoryNameById(post.child_category_id),
+        })
+      )
+    );
+
+    return { posts: initialPosts, totalCount: count || 0 };
+  }
+);
+
+export default async function PostPage({ searchParams }: { searchParams: { page: string } }) {
+  const page = parseInt(searchParams.page || '1', 10);
+  const { posts: initialPosts, totalCount } = await fetchInitialPosts(page);
   const currentUser: CurrentUserType | null = await getCurrentUser();
 
-  // 검색 제안을 위해 제목 목록 생성
-  const searchSuggestions = Array.from(new Set(postsData.map((post) => post.title)));
+  const searchSuggestions = Array.from(new Set(initialPosts.map((post) => post.title)));
 
   return (
     <div className="pt-4">
       <SearchBar searchUrl="/post/search" suggestions={searchSuggestions} />
-      {/* <PopularitySwitchClient initialPosts={initialPosts} userId={currentUser?.id ?? null} /> */}
       <div className="flex flex-col px-4 pt-4 ">
-        <InfiniteScrollPosts
+        <PagedPosts
           initialPosts={initialPosts}
           userId={currentUser?.id ?? null}
           currentUser={currentUser}
+          totalCount={totalCount}
+          currentPage={page}
         />
       </div>
       <FixedIconGroup />

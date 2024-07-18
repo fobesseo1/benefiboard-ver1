@@ -1,5 +1,4 @@
 //app>profile>_components>ProfileForm.tsx
-
 'use client';
 
 import { useState, FormEvent, ChangeEvent, useRef, useEffect } from 'react';
@@ -35,9 +34,28 @@ type PartnerUser = {
 };
 
 export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
+  const formatDateToInput = (dateString: string): string => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+  };
+  const formatInputToDate = (input: string): string => {
+    return `${input.substr(0, 4)}-${input.substr(4, 2)}-${input.substr(6, 2)}`;
+  };
+
+  const validateBirthday = (input: string): boolean => {
+    if (input.length !== 8) return false;
+    const year = parseInt(input.substr(0, 4));
+    const month = parseInt(input.substr(4, 2));
+    const day = parseInt(input.substr(6, 2));
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  };
+
   const [username, setUsername] = useState(profile.username || '');
   const [email, setEmail] = useState(profile.email || '');
-  const [birthday, setBirthday] = useState(profile.birthday || '');
+  const [birthdayInput, setBirthdayInput] = useState(
+    profile.birthday ? formatDateToInput(profile.birthday) : ''
+  );
   const [gender, setGender] = useState(profile.gender || 'Let me see');
   const [location, setLocation] = useState(profile.location || '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
@@ -47,7 +65,8 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentSupportTarget, setCurrentSupportTarget] = useState<PartnerUser | null>(null);
   const [isUsernameDuplicate, setIsUsernameDuplicate] = useState(false);
-  const [isUsernameChecked, setIsUsernameChecked] = useState(false);
+  const [isUsernameChecked, setIsUsernameChecked] = useState(true);
+  const [isFormChanged, setIsFormChanged] = useState(false);
 
   const point = profile.current_points || 0;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,10 +98,21 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
     setIsUsernameChecked(true);
   };
 
+  const handleBirthdayChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, '').slice(0, 8);
+    setBirthdayInput(input);
+    setIsFormChanged(true);
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!isUsernameChecked || isUsernameDuplicate) {
+    if (username !== profile.username && (!isUsernameChecked || isUsernameDuplicate)) {
       alert('Please check username availability before updating profile.');
+      return;
+    }
+
+    if (birthdayInput && !validateBirthday(birthdayInput)) {
+      alert('Please enter a valid birthday (YYYYMMDD).');
       return;
     }
 
@@ -90,7 +120,7 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
     formData.append('userId', profile.id);
     formData.append('username', username);
     formData.append('email', email);
-    formData.append('birthday', birthday);
+    formData.append('birthday', birthdayInput ? formatInputToDate(birthdayInput) : '');
     formData.append('gender', gender);
     formData.append('location', location);
     formData.append('donation_id', selectedCategory === '나에게' ? profile.id : supportTarget);
@@ -126,8 +156,16 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
       setNewAvatarFile(file);
       const objectUrl = URL.createObjectURL(file);
       setAvatarUrl(objectUrl);
+      setIsFormChanged(true);
     }
   };
+
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      setIsFormChanged(true);
+    };
 
   const filteredPartnerUsers = selectedCategory
     ? partnerUsers.filter((user) => user.category === selectedCategory)
@@ -199,29 +237,35 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
                 onChange={(e) => {
                   setUsername(e.target.value);
                   setIsUsernameChecked(false);
+                  setIsFormChanged(true);
                 }}
                 required
                 disabled={!isEditable}
                 className="text-gray-800"
               />
             </div>
-            {isEditable && (
+            {isEditable && username !== profile.username && (
               <Button type="button" onClick={handleUsernameCheck} className="mt-5">
                 중복확인
               </Button>
             )}
           </div>
+          {!isUsernameChecked && username !== profile.username && (
+            <p className="text-red-500">Please check username availability</p>
+          )}
           {isUsernameChecked && (
             <p className={isUsernameDuplicate ? 'text-red-500' : 'text-green-500'}>
               {isUsernameDuplicate ? 'Username is already taken' : 'Username is available'}
             </p>
           )}
           <div className="birthday">
-            <label className="block text-sm font-medium text-gray-600">생일</label>
+            <label className="block text-sm font-medium text-gray-600">생일 (YYYYMMDD)</label>
             <Input
-              type="date"
-              value={birthday}
-              onChange={(e) => setBirthday(e.target.value)}
+              type="text"
+              value={birthdayInput}
+              onChange={handleBirthdayChange}
+              placeholder="19901231"
+              maxLength={8}
               disabled={!isEditable}
               className="text-gray-800"
             />
@@ -230,7 +274,10 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
             <label className="block text-sm font-medium text-gray-600">성별</label>
             <Select
               value={gender}
-              onValueChange={(value: 'male' | 'female' | 'Let me see') => setGender(value)}
+              onValueChange={(value: 'male' | 'female' | 'Let me see') => {
+                setGender(value);
+                setIsFormChanged(true);
+              }}
               disabled={!isEditable}
             >
               <SelectTrigger>
@@ -254,7 +301,7 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
             <Input
               type="text"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={handleInputChange(setLocation)}
               required
               disabled={!isEditable}
               className="text-gray-800"
@@ -267,6 +314,7 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
               onValueChange={(value) => {
                 setSelectedCategory(value);
                 setSupportTarget(value === '나에게' ? profile.id : '');
+                setIsFormChanged(true);
               }}
               disabled={!isEditable}
             >
@@ -290,7 +338,14 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
           {selectedCategory && selectedCategory !== '나에게' && (
             <div className="partner-select">
               <label className="block text-sm font-medium text-gray-600">Select Partner</label>
-              <Select value={supportTarget} onValueChange={setSupportTarget} disabled={!isEditable}>
+              <Select
+                value={supportTarget}
+                onValueChange={(value) => {
+                  setSupportTarget(value);
+                  setIsFormChanged(true);
+                }}
+                disabled={!isEditable}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="서포트 대상 선택" />
                 </SelectTrigger>
@@ -309,19 +364,16 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
             <Input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleInputChange(setEmail)}
               required
               disabled={!isEditable}
             />
           </div>
-          <p className="text-red-400 text-xs">
-            ＊닉네임 중복확인 후에 프로필 업데이트를 할 수 있습니다.＊
-          </p>
           {isEditable && (
             <Button
               className="mt-4"
               type="submit"
-              disabled={!isUsernameChecked || isUsernameDuplicate === true}
+              disabled={!isFormChanged || (username !== profile.username && !isUsernameChecked)}
             >
               프로필 업데이트
             </Button>

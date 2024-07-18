@@ -1,48 +1,78 @@
+//app>post>_action>infinityScrollPost.ts:
+
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
-import { PostType } from '../../../types/types';
 import { RepostType } from '@/app/repost/_component/repost_list';
+import { cache } from 'react';
+import { PostType } from '@/types/types';
+import { findCategoryNameById } from './category';
 
-export const fetchMorePosts = async (page: number, categoryId?: string) => {
-  const supabase = await createSupabaseServerClient();
+const CACHE_DURATION = 1 * 60 * 1000; // 1분 캐시
 
-  let query = supabase
-    .from('post')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .range((page - 1) * 10, page * 10 - 1);
+export const fetchMorePosts = cache(
+  async (page: number, categoryId?: string): Promise<PostType[]> => {
+    const supabase = await createSupabaseServerClient();
 
-  if (categoryId) {
-    query = query.eq('parent_category_id', categoryId);
+    let query = supabase
+      .from('post')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range((page - 1) * 10, page * 10 - 1);
+
+    if (categoryId) {
+      query = query.eq('parent_category_id', categoryId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
+
+    const postsWithCategories = await Promise.all(
+      data.map(
+        async (post): Promise<PostType> => ({
+          ...post,
+          parent_category_name: await findCategoryNameById(post.parent_category_id),
+          child_category_name: await findCategoryNameById(post.child_category_id),
+        })
+      )
+    );
+
+    return postsWithCategories;
   }
+);
 
-  const { data, error } = await query;
+export const fetchSearchPosts = cache(
+  async (searchTerm: string, page: number): Promise<PostType[]> => {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from('post')
+      .select('*')
+      .ilike('title', `%${searchTerm}%`)
+      .order('created_at', { ascending: false })
+      .range((page - 1) * 10, page * 10 - 1);
 
-  if (error) {
-    console.error('Error fetching posts:', error);
-    return [];
+    if (error) {
+      console.error('Error fetching search posts:', error);
+      return [];
+    }
+
+    const postsWithCategories = await Promise.all(
+      data.map(
+        async (post): Promise<PostType> => ({
+          ...post,
+          parent_category_name: await findCategoryNameById(post.parent_category_id),
+          child_category_name: await findCategoryNameById(post.child_category_id),
+        })
+      )
+    );
+
+    return postsWithCategories;
   }
-
-  return data;
-};
-
-export async function fetchSearchPosts(searchTerm: string, page: number): Promise<PostType[]> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('post')
-    .select('*')
-    .ilike('title', `%${searchTerm}%`)
-    .order('created_at', { ascending: false })
-    .range((page - 1) * 10, page * 10 - 1);
-
-  if (error) {
-    console.error('Error fetching search posts:', error);
-    return [];
-  }
-
-  return data || [];
-}
+);
 
 //리포스트리포스트 오더 순서대로
 

@@ -8,7 +8,7 @@ import { deleteAvatarFromSupabase, uploadAvatarToSupabase } from '@/app/post/_ac
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/cookies';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 export interface ProfileType {
   avatar_url?: string;

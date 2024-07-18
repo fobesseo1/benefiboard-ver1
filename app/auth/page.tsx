@@ -4,7 +4,7 @@ import React from 'react';
 import { AuthForm } from './components/AuthForm';
 import SignOut from './components/SignOut';
 import { getCurrentUser } from '@/lib/cookies';
-import { CurrentUserType } from '../page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function page() {
   const currentUser: CurrentUserType | null = await getCurrentUser();

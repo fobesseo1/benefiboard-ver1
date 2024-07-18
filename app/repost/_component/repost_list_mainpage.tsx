@@ -18,6 +18,7 @@ type RepostDataProps = {
   initialPosts: RepostType[];
   currentUser: CurrentUserType | null;
   linkPath: string;
+  userId: string | null;
 };
 
 // 사이트와 색상 매핑 객체
@@ -43,6 +44,7 @@ export default function Repost_list_mainpage({
   initialPosts,
   currentUser,
   linkPath,
+  userId,
 }: RepostDataProps) {
   const [posts, setPosts] = useState<RepostType[]>(initialPosts);
   const [currentUserState, setCurrentUserState] = useState<CurrentUserType | null>(currentUser);
@@ -50,7 +52,6 @@ export default function Repost_list_mainpage({
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPost, setSelectedPost] = useState<RepostType | null>(null);
   const router = useRouter();
-  const userId = currentUser?.id;
 
   useEffect(() => {
     setPosts(initialPosts);
@@ -76,39 +77,40 @@ export default function Repost_list_mainpage({
   }, [userId]);
 
   useEffect(() => {
-    const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
-    const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
-    setReadPosts(storedReadPosts);
+    if (userId) {
+      const readPostsKey = `readPosts_${userId}`;
+      const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
+      setReadPosts(storedReadPosts);
+    }
   }, [userId]);
 
   const handlePostClick = async (post: RepostType) => {
-    const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
-    const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
+    if (userId) {
+      const readPostsKey = `readPosts_${userId}`;
+      const storedReadPosts = JSON.parse(localStorage.getItem(readPostsKey) || '[]');
+      const updatedReadPosts = Array.from(new Set([...storedReadPosts, post.id.toString()]));
+      setReadPosts(updatedReadPosts);
+      localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
 
-    const updatedReadPosts = Array.from(new Set([...storedReadPosts, post.id.toString()]));
-
-    setReadPosts(updatedReadPosts);
-    localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
-
-    // 기부 포인트 추가 로직
-    if (currentUserState && currentUserState.donation_id) {
-      try {
-        const donationResult = await addDonationPoints(
-          currentUserState.id,
-          currentUserState.donation_id,
-          5 // 기부 포인트 금액, 필요에 따라 조정 가능
-        );
-        if (donationResult) {
-          console.log(
-            `Added 5 donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
+      if (currentUser && currentUser.donation_id) {
+        try {
+          const donationResult = await addDonationPoints(
+            currentUser.id,
+            currentUser.donation_id,
+            5
           );
-        } else {
-          console.error(
-            `Failed to add donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
-          );
+          if (donationResult) {
+            console.log(
+              `Added 5 donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          } else {
+            console.error(
+              `Failed to add donation points from ${currentUser.id} to ${currentUser.donation_id}`
+            );
+          }
+        } catch (error) {
+          console.error('Error adding donation points:', error);
         }
-      } catch (error) {
-        console.error('Error adding donation points:', error);
       }
     }
 

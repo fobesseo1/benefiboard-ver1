@@ -1,32 +1,54 @@
 // app/actions/mainPageActions.ts
+
+import { cache } from 'react';
 import createSupabaseServerClient from '@/lib/supabse/server';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { findCategoryNameById } from '../post/_action/category';
 import { fetchTop10Batches, fetchTop10BestBatches } from '../repost/_actions/fetchRepostData';
+import { RepostType } from '../repost/_component/repost_list';
+import { findCategoryNameById } from '../post/_action/category';
+import { PostType } from '@/types/types';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export async function fetchPosts() {
-  const supabase = await createSupabaseServerClient();
-  const now = dayjs().tz('Asia/Seoul');
-  const sevenDayAgo = now.subtract(21, 'day').tz('Asia/Seoul').format();
+// 캐시를 위한 변수들
+let cachedPosts: PostType[] | null = null;
+let lastPostsFetch: number = 0;
+let cachedBasicReposts: RepostType[] | null = null;
+let lastBasicRepostsFetch: number = 0;
+let cachedBestReposts: RepostType[] | null = null;
+let lastBestRepostsFetch: number = 0;
 
-  const result = await supabase
+const CACHE_DURATION = 30 * 1000; // 30초
+
+export const fetchPosts = cache(async (): Promise<PostType[]> => {
+  const now = Date.now();
+  if (cachedPosts && now - lastPostsFetch < CACHE_DURATION) {
+    return cachedPosts;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const nowDate = dayjs().tz('Asia/Seoul');
+  const sevenDayAgo = nowDate.subtract(21, 'day').format();
+
+  const { data: result, error } = await supabase
     .from('post')
-    .select(
-      'id, title, created_at, views, comments, author_id, author_name, author_email, author_avatar_url, parent_category_id, child_category_id, likes, dislikes'
-    )
+    .select('*')
     .gt('created_at', sevenDayAgo)
     .order('views', { ascending: false })
     .limit(10);
 
-  const postsData = result.data || [];
+  if (error) {
+    console.error('Error fetching posts:', error);
+    return cachedPosts || []; // 에러 시 캐시된 데이터 반환 또는 빈 배열
+  }
 
-  const postsWithCategoryNames = await Promise.all(
-    postsData.map(async (post) => {
+  const postsData = result || [];
+
+  const postsWithCategoryNames: PostType[] = await Promise.all(
+    postsData.map(async (post): Promise<PostType> => {
       const parentCategoryName = await findCategoryNameById(post.parent_category_id);
       const childCategoryName = await findCategoryNameById(post.child_category_id);
 
@@ -34,19 +56,48 @@ export async function fetchPosts() {
         ...post,
         parent_category_name: parentCategoryName,
         child_category_name: childCategoryName,
-      };
+      } as PostType;
     })
   );
 
+  cachedPosts = postsWithCategoryNames;
+  lastPostsFetch = now;
+
   return postsWithCategoryNames;
-}
+});
 
-export async function fetchBestReposts() {
+export const fetchBestReposts = cache(async (): Promise<RepostType[]> => {
+  const now = Date.now();
+  if (cachedBestReposts && now - lastBestRepostsFetch < 12 * 60 * 60 * 1000) {
+    // 12시간 캐시
+    return cachedBestReposts;
+  }
+
   const { success, data } = await fetchTop10BestBatches();
-  return success ? data : [];
-}
+  if (success && data) {
+    cachedBestReposts = data;
+    lastBestRepostsFetch = now;
+    return data;
+  }
 
-export async function fetchBasicReposts() {
+  console.error('Error fetching best reposts');
+  return [];
+});
+
+export const fetchBasicReposts = cache(async (): Promise<RepostType[]> => {
+  const now = Date.now();
+  if (cachedBasicReposts && now - lastBasicRepostsFetch < 2 * 60 * 60 * 1000) {
+    // 2시간 캐시
+    return cachedBasicReposts;
+  }
+
   const { success, data } = await fetchTop10Batches();
-  return success ? data : [];
-}
+  if (success && data) {
+    cachedBasicReposts = data;
+    lastBasicRepostsFetch = now;
+    return data;
+  }
+
+  console.error('Error fetching basic reposts');
+  return [];
+});

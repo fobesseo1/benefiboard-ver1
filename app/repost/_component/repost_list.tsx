@@ -1,16 +1,18 @@
+// app/repost/_component/repost_list.tsx
 'use client';
 
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { listformatDate } from '@/lib/utils/formDate';
 import RepostPopup from './RepostPopup';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import classNames from 'classnames';
 import { fetchReposts, fetchBestReposts } from '../_actions/repostActions';
 import SiteFilter, { siteColors } from './SiteFilter';
 import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
 import { CurrentUserType } from '@/types/types';
+import { Button } from '@/components/ui/button';
 
 export type RepostType = {
   id: number;
@@ -25,59 +27,98 @@ export type RepostType = {
 type RepostDataProps = {
   initialPosts: RepostType[];
   currentUser: CurrentUserType | null;
-  isBestPosts?: boolean;
+  isBestPosts: boolean;
   initialSearchTerm?: string;
   searchTerm?: string;
 };
 
+const POSTS_PER_PAGE = 20;
+
 export default function Repost_list({
   initialPosts,
   currentUser,
-  isBestPosts = false,
+  isBestPosts,
   initialSearchTerm = '',
   searchTerm: propSearchTerm = '',
 }: RepostDataProps) {
-  const [posts, setPosts] = useState<RepostType[]>(initialPosts);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [allPosts, setAllPosts] = useState<RepostType[]>(initialPosts);
   const [currentUserState, setCurrentUserState] = useState<CurrentUserType | null>(currentUser);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(2);
-  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState<number>(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
   const [readPosts, setReadPosts] = useState<string[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPost, setSelectedPost] = useState<RepostType | null>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+
   const userId = currentUser?.id;
 
-  const urlSearchTerm = useSearchParams().get('query');
+  const urlSearchTerm = searchParams.get('query');
   const effectiveSearchTerm = propSearchTerm || urlSearchTerm || initialSearchTerm;
 
+  const baseUrl = isBestPosts ? '/repost/best' : '/repost';
+
+  const filteredPosts = useMemo(() => {
+    return allPosts.filter(
+      (post) => selectedSites.length === 0 || selectedSites.includes(post.site)
+    );
+  }, [allPosts, selectedSites]);
+
+  const totalPages = useMemo(
+    () => Math.ceil(filteredPosts.length / POSTS_PER_PAGE),
+    [filteredPosts]
+  );
+
+  const currentPagePosts = useMemo(() => {
+    const startIndex = (page - 1) * POSTS_PER_PAGE;
+    return filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
+  }, [filteredPosts, page]);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const loadMorePosts = useCallback(async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { data: newPosts } = isBestPosts
+        ? await fetchBestReposts(
+            effectiveSearchTerm,
+            Math.ceil(allPosts.length / POSTS_PER_PAGE) + 1,
+            POSTS_PER_PAGE,
+            selectedSites
+          )
+        : await fetchReposts(
+            effectiveSearchTerm,
+            Math.ceil(allPosts.length / POSTS_PER_PAGE) + 1,
+            POSTS_PER_PAGE,
+            selectedSites
+          );
+
+      setAllPosts((prev) => [...prev, ...newPosts]);
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+    }
+    setLoading(false);
+  }, [allPosts.length, effectiveSearchTerm, isBestPosts, loading, selectedSites]);
+
   useEffect(() => {
-    setPosts(initialPosts);
-    setAllPosts(initialPosts);
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('page', page.toString());
+    router.push(`${baseUrl}?${newSearchParams.toString()}`, { scroll: false });
+    scrollToTop();
+  }, [page, router, searchParams, scrollToTop, baseUrl]);
+
+  useEffect(() => {
     setCurrentUserState(currentUser);
-  }, [initialPosts, currentUser]);
-
-  useEffect(() => {
-    const clearLocalStorageDaily = () => {
-      const lastClear = localStorage.getItem('lastClear');
-      const now = new Date().getTime();
-
-      if (!lastClear || now - parseInt(lastClear) > 24 * 60 * 60 * 1000) {
-        localStorage.setItem('lastClear', now.toString());
-        localStorage.removeItem('roundsData');
-        localStorage.removeItem(`readPosts`);
-        if (userId) {
-          localStorage.removeItem(`readPosts_${userId}`);
-        }
-      }
-    };
-
-    clearLocalStorageDaily();
-  }, [userId]);
+  }, [currentUser]);
 
   useEffect(() => {
     const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
@@ -86,85 +127,10 @@ export default function Repost_list({
   }, [userId]);
 
   useEffect(() => {
-    const fetchInitialPosts = async () => {
-      setLoading(true);
-      try {
-        const { data: newPosts, totalCount } = isBestPosts
-          ? await fetchBestReposts(effectiveSearchTerm, 1)
-          : await fetchReposts(effectiveSearchTerm, 1);
-
-        setAllPosts(newPosts);
-        setPosts(newPosts);
-        setPage(2);
-        setHasMore(newPosts.length < (totalCount ?? 0));
-      } catch (error) {
-        console.error('Error fetching initial posts:', error);
-        setAllPosts([]);
-        setPosts([]);
-        setHasMore(false);
-      }
-      setLoading(false);
-    };
-
-    fetchInitialPosts();
-  }, [effectiveSearchTerm, isBestPosts]);
-
-  const fetchMorePosts = async () => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
-    try {
-      const { data: newPosts, totalCount } = isBestPosts
-        ? await fetchBestReposts(effectiveSearchTerm, page)
-        : await fetchReposts(effectiveSearchTerm, page);
-
-      if (newPosts.length > 0) {
-        const uniquePosts = Array.from(
-          new Set([...allPosts, ...newPosts].map((post) => JSON.stringify(post)))
-        ).map((post) => JSON.parse(post));
-        setAllPosts(uniquePosts);
-        setPage((prev) => prev + 1);
-        setHasMore(uniquePosts.length < (totalCount ?? 0));
-
-        // 필터링된 포스트 업데이트
-        updateFilteredPosts(uniquePosts, selectedSites);
-      } else {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error('Error fetching more posts:', error);
-      setHasMore(false);
+    if (page > totalPages && totalPages > 0) {
+      loadMorePosts();
     }
-    setLoading(false);
-  };
-
-  const updateFilteredPosts = (allPosts: RepostType[], sites: string[]) => {
-    if (sites.length === 0) {
-      setPosts(allPosts);
-    } else {
-      setPosts(allPosts.filter((post) => sites.includes(post.site)));
-    }
-  };
-
-  const handleObserver = (entries: IntersectionObserverEntry[]) => {
-    const target = entries[0];
-    if (target.isIntersecting && !loading && hasMore) {
-      fetchMorePosts();
-    }
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: '20px',
-      threshold: 0,
-    });
-
-    if (ref.current && hasMore) observer.observe(ref.current);
-    return () => {
-      if (ref.current) observer.unobserve(ref.current);
-    };
-  }, [loading, hasMore]);
+  }, [page, totalPages, loadMorePosts]);
 
   const handlePostClick = async (post: RepostType) => {
     const readPostsKey = userId ? `readPosts_${userId}` : 'readPosts';
@@ -175,23 +141,9 @@ export default function Repost_list({
     setReadPosts(updatedReadPosts);
     localStorage.setItem(readPostsKey, JSON.stringify(updatedReadPosts));
 
-    // 기부 포인트 추가 로직
     if (currentUserState && currentUserState.donation_id) {
       try {
-        const donationResult = await addDonationPoints(
-          currentUserState.id,
-          currentUserState.donation_id,
-          5 // 기부 포인트 금액, 필요에 따라 조정 가능
-        );
-        if (donationResult) {
-          console.log(
-            `Added 5 donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
-          );
-        } else {
-          console.error(
-            `Failed to add donation points from ${currentUserState.id} to ${currentUserState.donation_id}`
-          );
-        }
+        await addDonationPoints(currentUserState.id, currentUserState.donation_id, 5);
       } catch (error) {
         console.error('Error adding donation points:', error);
       }
@@ -201,39 +153,54 @@ export default function Repost_list({
     setShowPopup(true);
   };
 
-  const isPostRead = (postId: string) => {
-    return readPosts.includes(postId);
-  };
+  const isPostRead = useCallback(
+    (postId: string) => {
+      return readPosts.includes(postId);
+    },
+    [readPosts]
+  );
 
   const closePopup = () => {
     setShowPopup(false);
     setSelectedPost(null);
   };
 
-  const getBadgeColor = (site: string) => {
+  const getBadgeColor = useCallback((site: string) => {
     return siteColors[site] || 'gray';
-  };
+  }, []);
 
-  const handleSiteToggle = (site: string) => {
-    let newSelectedSites: string[];
-    if (site === '전체') {
-      newSelectedSites = [];
-    } else {
-      newSelectedSites = selectedSites.includes(site)
-        ? selectedSites.filter((s) => s !== site)
-        : [...selectedSites, site];
-    }
-    setSelectedSites(newSelectedSites);
-    updateFilteredPosts(allPosts, newSelectedSites);
-  };
+  const handleSiteToggle = useCallback(
+    (site: string) => {
+      setSelectedSites((prev) => {
+        const newSelectedSites =
+          site === '전체'
+            ? []
+            : prev.includes(site)
+              ? prev.filter((s) => s !== site)
+              : [...prev, site];
+
+        setPage(1);
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        newSearchParams.set('page', '1');
+        router.push(`${baseUrl}?${newSearchParams.toString()}`, { scroll: false });
+
+        return newSelectedSites;
+      });
+    },
+    [searchParams, router, baseUrl]
+  );
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+  }, []);
 
   return (
     <div>
       <SiteFilter selectedSites={selectedSites} onSiteToggle={handleSiteToggle} />
-      {posts.length ? (
-        posts.map((post) => (
+      {currentPagePosts.length ? (
+        currentPagePosts.map((post) => (
           <div key={`${post.id}-${post.site}`}>
-            <div className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200 lg:w-[948px] mx-auto ">
+            <div className="flex flex-col py-2 bg-white border-b-[1px] border-gray-200 mx-auto">
               <div className="flex justify-between items-center">
                 <div className="categoryCreatorComments flex gap-2 flex-1 overflow-hidden items-center">
                   <div className="flex items-center">
@@ -264,8 +231,26 @@ export default function Repost_list({
       ) : (
         <p className="hover:text-red-200 text-blue-400">No posts</p>
       )}
-      {loading && <p>Loading...</p>}
-      <div ref={ref} />
+      {loading && <p>Loading more posts...</p>}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          onClick={() => handlePageChange(Math.max(page - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          이전 페이지
+        </Button>
+        <span className="text-sm text-gray-700">
+          전체 {totalPages} 중 {page}
+        </span>
+        <Button
+          onClick={() => handlePageChange(Math.min(page + 1, totalPages))}
+          disabled={page === totalPages && !loading}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          다음 페이지
+        </Button>
+      </div>
       {showPopup && selectedPost && (
         <RepostPopup post={selectedPost} currentUser={currentUserState} onClose={closePopup} />
       )}

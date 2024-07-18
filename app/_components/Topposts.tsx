@@ -160,7 +160,7 @@ export default function TopPosts({ posts, userId, currentUser }: TopPostsProps) 
                 className="hidden lg:flex w-[948px]  gap-4 items-center  py-2 bg-white border-b-[1px] border-gray-200"
                 onClick={() => handlePostClick(post.id)}
               >
-                <div className="flex items-center w-[140px]">
+                <div className="flex items-center w-[160px]">
                   <div className="flex">
                     <p className="text-xs leading-tight tracking-tight text-gray-600">
                       {post.parent_category_name || '아무거나'} &gt;
@@ -170,7 +170,7 @@ export default function TopPosts({ posts, userId, currentUser }: TopPostsProps) 
                     </p>
                   </div>
                 </div>
-                <div className="w-[540px] py-1 cursor-pointer">
+                <div className="w-[520px] py-1 cursor-pointer">
                   <p
                     className={`font-semibold line-clamp-1 leading-tight tracking-tighter ${
                       isPostRead(post.id) ? 'text-gray-400' : ''

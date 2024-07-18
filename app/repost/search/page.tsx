@@ -1,8 +1,7 @@
 // app/repost/search/page.tsx
-
 import { getCurrentUser } from '@/lib/cookies';
-import Repost_list from '../_component/repost_list';
 import SearchBar from '@/app/post/_component/SearchBar';
+import RepostSearchList from '../_component/RepostSearchList';
 import { fetchLatestBatches } from '../_actions/fetchRepostData';
 import { RepostType } from '../_component/repost_list';
 import { CurrentUserType } from '@/types/types';
@@ -22,15 +21,10 @@ export default async function RepostSearchPage({
 
   return (
     <div className="pt-4">
-      <div className="flex flex-col px-6 pt-2 lg:w-[984px] mx-auto">
+      <div className="flex flex-col px-6 pt-2 lg:w-[948px] mx-auto">
         <h1 className="text-2xl font-semibold">Repost Search Results</h1>
         <SearchBar initialQuery={query} searchUrl="/repost/search" suggestions={titleSuggestions} />
-        <Repost_list
-          initialPosts={[]}
-          currentUser={currentUser ?? null}
-          isBestPosts={false}
-          initialSearchTerm={query}
-        />
+        <RepostSearchList currentUser={currentUser} isBestPosts={false} initialSearchTerm={query} />
       </div>
     </div>
   );

@@ -1,16 +1,27 @@
 // app/repost/page.tsx
 
+import { cache } from 'react';
 import Repost_list, { RepostType } from './_component/repost_list';
 import { getCurrentUser } from '@/lib/cookies';
 import SearchBar from '../post/_component/SearchBar';
 import { fetchLatestBatches } from './_actions/fetchRepostData';
 import { CurrentUserType } from '@/types/types';
 
-export default async function RepostPage() {
-  const { success, data: repostData, error } = await fetchLatestBatches();
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2시간 캐시
 
+const fetchCachedRepostData = cache(async () => {
+  const { success, data: repostData, error } = await fetchLatestBatches();
   if (!success || !repostData) {
     console.error('Failed to fetch data:', error);
+    return null;
+  }
+  return repostData;
+});
+
+export default async function RepostPage() {
+  const repostData = await fetchCachedRepostData();
+
+  if (!repostData) {
     return <div>Loading...</div>;
   }
 
@@ -20,15 +31,18 @@ export default async function RepostPage() {
 
   const currentUser: CurrentUserType | null = await getCurrentUser();
 
-  // 검색 제안을 위해 제목 목록 생성
   const searchSuggestions = Array.from(new Set(repostData.map((post) => post.title)));
 
   return (
     <div className="pt-4">
-      <div className="flex flex-col px-6 pt-2 lg:w-[984px] mx-auto">
+      <div className="flex flex-col px-6 pt-2 lg:w-[948px] mx-auto">
         <h1 className="text-2xl font-semibold">Repost</h1>
         <SearchBar searchUrl="/repost/search" suggestions={searchSuggestions} />
-        <Repost_list initialPosts={repostData} currentUser={currentUser ?? null} />
+        <Repost_list
+          initialPosts={repostData}
+          currentUser={currentUser ?? null}
+          isBestPosts={false}
+        />
       </div>
     </div>
   );

@@ -1,21 +1,19 @@
 // app/post/best/page.tsx
-
-import createSupabaseServerClient from '@/lib/supabse/server';
+import { cache } from 'react';
 import { getCurrentUser } from '@/lib/cookies';
-import { fetchTopPosts } from '../_action/fetchTopPosts';
+import { fetchCachedTopPosts, fetchTopPosts } from '../_action/fetchTopPosts';
 import SearchBar from '../_component/SearchBar';
-import InfiniteScrollPosts from '../_component/InfiniteScrollPosts';
+import PagedPosts from '../_component/PagedPosts';
 import FixedIconGroup from '../_component/FixedIconGroup';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, PostType } from '@/types/types';
 
-export default async function PostBestPage() {
-  const supabase = await createSupabaseServerClient();
+const CACHE_DURATION = 3 * 60 * 1000; // 3분 캐시
 
-  // Fetch top posts in the last 7 days
-  const topPosts = await fetchTopPosts();
-
+export default async function PostBestPage({ searchParams }: { searchParams: { page: string } }) {
+  const page = parseInt(searchParams.page || '1', 10);
+  const { posts: topPosts, totalCount } = await fetchCachedTopPosts(page);
   const currentUser: CurrentUserType | null = await getCurrentUser();
-  // 검색 제안을 위해 제목 목록 생성
+
   const searchSuggestions = Array.from(new Set(topPosts.map((post) => post.title)));
 
   return (
@@ -23,10 +21,13 @@ export default async function PostBestPage() {
       <SearchBar searchUrl="/post/search" suggestions={searchSuggestions} />
       <div className="flex flex-col px-4 pt-4">
         <h2 className="text-xl font-bold my-4 mx-auto">이번주 인기 게시물</h2>
-        <InfiniteScrollPosts
+        <PagedPosts
           initialPosts={topPosts}
           userId={currentUser?.id ?? null}
           currentUser={currentUser}
+          totalCount={totalCount}
+          currentPage={page}
+          isBestPosts={true}
         />
       </div>
       <FixedIconGroup />

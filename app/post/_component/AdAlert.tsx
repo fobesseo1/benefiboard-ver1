@@ -11,7 +11,7 @@ import { AdContentCard } from './AdContent';
 import { useDrag } from '@/hooks/useDrag';
 import { CurrentUserType } from '@/types/types';
 
-const AD_URL = 'https://www.google.com';
+const AD_URL = 'https://link.coupang.com/a/bKbEkY';
 
 export default function AdAlert({
   userId,
@@ -35,6 +35,8 @@ export default function AdAlert({
   const [showAdClickAnimation, setShowAdClickAnimation] = useState(false);
   const animationExecutedRef = useRef(false);
   const pointsAddedRef = useRef(false);
+
+  console.log('AdAlert', currentUser);
 
   const handleAdClose = useCallback(() => {
     setShowAd(false);
@@ -113,6 +115,7 @@ export default function AdAlert({
         <div className="fixed inset-0 z-[1000] pointer-events-none">
           <PointAnimation
             userId={userId}
+            currentUser={currentUser}
             initialRoundData={initialRoundData}
             initialPoints={initialPoints}
             onAnimationEnd={handleAnimationEnd}
@@ -142,6 +145,7 @@ export default function AdAlert({
         <div className="fixed inset-0 z-[1003] pointer-events-none">
           <PointAnimation
             userId={userId}
+            currentUser={currentUser}
             initialRoundData={{ round_points: [adClickPoints], current_round_index: 0 }}
             initialPoints={points}
             onAnimationEnd={(clickPoints: number) => {

@@ -1,20 +1,21 @@
 // app/_components/Header.tsx
 import Link from 'next/link';
-import HeaderClient from './HeaderClient';
 import HeaderBackClick from './HeaderBackClick';
 import HeaderCommonSheet from './HeaderCommonSheet';
 import { CurrentUserType } from '@/types/types';
 
 const Header = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
   return (
-    <div className="fixed top-0 left-0 z-50 w-full">
+    <div className="fixed top-0 left-0 z-50 w-full   bg-white">
       <header className="h-16 bg-white flex items-center justify-between px-6 border-b-[1px] border-gray-200 lg:w-[948px] mx-auto">
         <HeaderBackClick />
-        <img
-          src="/logo-benefiboard.svg"
-          alt=""
-          className="absolute left-1/2 transform -translate-x-1/2"
-        />
+        <Link href="/">
+          <img
+            src="/logo-benefiboard.svg"
+            alt=""
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+          />
+        </Link>
         {!currentUser && (
           <div className="flex gap-2 items-center">
             <Link href="/auth">
@@ -37,7 +38,9 @@ const Header = ({ currentUser }: { currentUser: CurrentUserType | null }) => {
                   />
                   {currentUser.unread_messages_count > 0 && (
                     <div className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {currentUser.unread_messages_count > 99 ? '99+' : currentUser.unread_messages_count}
+                      {currentUser.unread_messages_count > 99
+                        ? '99+'
+                        : currentUser.unread_messages_count}
                     </div>
                   )}
                 </div>

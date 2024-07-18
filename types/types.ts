@@ -11,16 +11,18 @@ export type CurrentUserType = {
 
 export type PostType = {
   id: string;
-  author_id: string;
+  title: string;
   created_at: string;
-  parent_category_name?: string; // 부모 카테고리 이름
-  child_category_name?: string; // 자식 카테고리 이름
-  author_name?: string;
-  author_email?: string;
-  author_avatar_url?: string;
-  views?: number;
-  comments?: number;
-  title?: string;
-  likes?: number;
-  dislikes?: number;
+  views: number;
+  comments: number;
+  author_id: string;
+  author_name: string;
+  author_email: string;
+  author_avatar_url: string;
+  parent_category_id: string;
+  child_category_id: string;
+  likes: number;
+  dislikes: number;
+  parent_category_name: string;
+  child_category_name: string;
 };
