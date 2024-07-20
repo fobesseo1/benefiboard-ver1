@@ -1,6 +1,7 @@
 //lib>cookies.ts
 
 'use server';
+
 import { cache } from 'react';
 import createSupabaseServerClient from './supabse/server';
 import { CurrentUserType } from '@/types/types';
@@ -11,10 +12,9 @@ export const getCurrentUser = cache(async (): Promise<CurrentUserType | null> =>
   try {
     const {
       data: { user },
-      error,
     } = await supabase.auth.getUser();
 
-    if (error || !user) {
+    if (!user) {
       console.log('No authenticated user');
       return null;
     }
@@ -22,7 +22,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUserType | null> =>
     const { data: userData, error: dataError } = await supabase
       .from('userdata')
       .select(
-        'id, username, email, avatar_url, current_points, donation_id, partner_name, unread_messages_count '
+        'id, username, email, avatar_url, current_points, donation_id, partner_name, unread_messages_count'
       )
       .eq('id', user.id)
       .single();

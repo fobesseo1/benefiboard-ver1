@@ -9,6 +9,7 @@ import Footer from './_components/Footer';
 import { Suspense } from 'react';
 import LoadingSpinner from './_components/LoadingSpinner';
 import { CurrentUserType } from '@/types/types';
+import AuthManager from './_components/AuthManager';
 
 const inter = Inter({ subsets: ['latin'] });
 const poppins = Poppins({
@@ -50,6 +51,7 @@ function UserAwareLayout({
   return (
     <>
       <Header currentUser={currentUser} />
+      <AuthManager />
       <main className="flex-1 tracking-tight text-gray-800 leading-tight pt-16 pb-16 lg:pb-4">
         <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
       </main>

@@ -11,18 +11,8 @@ import classNames from 'classnames';
 import { fetchReposts, fetchBestReposts } from '../_actions/repostActions';
 import SiteFilter, { siteColors } from './SiteFilter';
 import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, RepostType } from '@/types/types';
 import { Button } from '@/components/ui/button';
-
-export type RepostType = {
-  id: number;
-  link: string;
-  title: string;
-  site: string;
-  created_at: string;
-  batch: number;
-  order: number;
-};
 
 type RepostDataProps = {
   initialPosts: RepostType[];

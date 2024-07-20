@@ -6,15 +6,7 @@ import { useDrag } from '@use-gesture/react';
 import Ad_Handler from '@/app/_components/Ad_Handler';
 import { Button } from '@/components/ui/button';
 import Ad_Square_Updown from '@/app/_components/Ad_Square_Updown';
-import { CurrentUserType } from '@/types/types';
-
-interface RepostType {
-  id: number;
-  link: string;
-  title: string;
-  site: string;
-  created_at: string;
-}
+import { CurrentUserType, RepostType } from '@/types/types';
 
 interface RepostPopupProps {
   post: RepostType;

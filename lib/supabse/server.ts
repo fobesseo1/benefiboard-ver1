@@ -1,3 +1,5 @@
+//lib/supabase/server.ts
+
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -13,20 +15,10 @@ export default async function createSupabaseServerClient() {
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options });
-          } catch (error) {
-            // 쿠키 설정 오류를 무시하고 계속 진행
-            console.warn('Failed to set cookie:', error);
-          }
+          cookieStore.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options });
-          } catch (error) {
-            // 쿠키 제거 오류를 무시하고 계속 진행
-            console.warn('Failed to remove cookie:', error);
-          }
+          cookieStore.set({ name, value: '', ...options });
         },
       },
     }

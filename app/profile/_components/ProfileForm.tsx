@@ -378,7 +378,7 @@ export default function ProfileForm({ profile, isEditable }: ProfileFormProps) {
               프로필 업데이트
             </Button>
           )}
-          <StickerDisplayComponent />
+          {/* <StickerDisplayComponent /> */}
         </div>
       </div>
     </form>

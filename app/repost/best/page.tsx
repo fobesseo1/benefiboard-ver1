@@ -63,7 +63,9 @@ export default async function RepostBestPage() {
   return (
     <div className="pt-4">
       <div className="flex flex-col px-6 pt-2 lg:w-[948px] mx-auto">
-        <h1 className="text-2xl font-semibold">Best Repost</h1>
+        <h1 className="text-2xl font-semibold mt-4 mb-8 text-center">
+          인기 커뮤니티 오늘의 베스트
+        </h1>
         <SearchBar searchUrl="/repost/search/best" suggestions={searchSuggestions} />
         <Repost_list
           initialPosts={repostData}

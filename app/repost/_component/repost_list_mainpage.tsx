@@ -10,9 +10,8 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import classNames from 'classnames'; // classNames 라이브러리 임포트
 import Link from 'next/link';
-import { RepostType } from './repost_list';
 import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, RepostType } from '@/types/types';
 
 type RepostDataProps = {
   initialPosts: RepostType[];

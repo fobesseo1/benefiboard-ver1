@@ -26,6 +26,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
 
   return (
     <div className="relative mx-4 lg:w-[948px] lg:mx-auto">
+      <Ad_Rectangle_Updown />
       <Breadcrumbs category={post?.category} />
       <Suspense fallback={<div>Loading Post Header...</div>}>
         <PostHeader
@@ -41,7 +42,6 @@ export default async function PostDetailPage({ params }: { params: { id: string 
           point={currentUser?.current_points ?? 0}
         />
       </Suspense>
-      <Ad_Rectangle_Updown />
 
       {post?.images && (
         <div className="flex flex-col gap-4">

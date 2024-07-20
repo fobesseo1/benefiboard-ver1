@@ -1,12 +1,11 @@
 // app/repost/_component/RepostItem.tsx
 
 import React from 'react';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, RepostType } from '@/types/types';
 import { Badge } from '@/components/ui/badge';
 import { listformatDate } from '@/lib/utils/formDate';
 import { siteColors } from './SiteFilter';
 import classNames from 'classnames';
-import { RepostType } from './repost_list';
 
 interface RepostItemProps {
   post: RepostType;

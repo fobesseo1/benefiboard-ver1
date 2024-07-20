@@ -1,3 +1,5 @@
+//app/datafetch/page.tsx
+
 import { getCurrentUser } from '@/lib/cookies';
 import { redirect } from 'next/navigation';
 import DataFetchClient from './DataFetchClient';

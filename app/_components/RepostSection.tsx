@@ -1,8 +1,7 @@
 // app/_components/RepostSection.tsx
 'use client';
 
-import { CurrentUserType } from '@/types/types';
-import { RepostType } from '../repost/_component/repost_list';
+import { CurrentUserType, RepostType } from '@/types/types';
 import Repost_list_mainpage from '../repost/_component/repost_list_mainpage';
 
 interface RepostSectionProps {

@@ -1,6 +1,7 @@
 import { postformatDate } from '@/lib/utils/formDate';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import AuthorProfileCard from './AuthProfileCard';
+import Link from 'next/link';
 
 const PostHeader = ({
   title,
@@ -28,33 +29,24 @@ const PostHeader = ({
   <div className="flex flex-col justify-center gap-2 py-2 ">
     {/* 작성자 정보 */}
     <div className="flex items-center author">
-      <AuthorProfileCard
-        author_name={author_name || author_email || 'unknown'}
-        author_avatar_url={author_avatar_url || '/money-3d-main.png'}
-        author_id={author_id}
-        point={point}
-        triggerElement={
-          <img
-            src={author_avatar_url || '/money-3d-main.png'}
-            alt=""
-            className="w-12 h-12 ring-1 rounded-full object-cover cursor-pointer"
-          />
-        }
-      />
-      <div className="flex-1 h-10 ml-2 bg-white flex flex-col justify-center ">
-        <AuthorProfileCard
-          author_name={author_name || author_email || 'unknown'}
-          author_avatar_url={author_avatar_url || '/money-3d-main.png'}
-          author_id={author_id}
-          point={point || 0}
-          triggerElement={
-            <p className="text-sm text-gray-600 font-bold leading-tight tracking-tighter line-clamp-1 cursor-pointer">
-              {author_name || author_email || 'unknown'}
-            </p>
-          }
+      <Link href={`/profile/${author_id}`}>
+        <img
+          src={author_avatar_url || '/money-3d-main.png'}
+          alt=""
+          className="w-12 h-12 ring-1 rounded-full object-cover cursor-pointer"
         />
+      </Link>
+
+      <div className="flex-1 h-10 ml-2 bg-white flex flex-col justify-center ">
+        <Link href={`/profile/${author_id}`}>
+          <p className="text-sm text-gray-600 font-bold leading-tight tracking-tighter line-clamp-1 cursor-pointer">
+            {author_name || author_email || 'unknown'}
+          </p>
+        </Link>
       </div>
-      <BiDotsVerticalRounded size={24} />
+      <Link href={`/message/create?receiver_id=${author_id}`}>
+        <BiDotsVerticalRounded size={24} />
+      </Link>
     </div>
 
     <hr />

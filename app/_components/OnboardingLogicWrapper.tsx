@@ -42,9 +42,9 @@ export default function OnboardingLogicWrapper({
       <hr className="mx-auto border-gray-200 w-full" />
       <div className="w-full flex flex-col grid-cols-2 gap-12 lg:gap-8 lg:grid">{children}</div>
       <hr className="my-4 mx-auto border-gray-200 w-full" />
-      <CommunityHighlight />
+      {/* <CommunityHighlight />
       <hr className="my-4 mx-auto border-gray-200 w-full" />
-      <Ad_Rectangle_Updown />
+      <Ad_Rectangle_Updown /> */}
     </div>
   );
 }

@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from '../_css-module/Onboarding.module.css';
-import GamifiedPointsSystem from './GamifiedPointsSystem';
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -20,7 +19,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     const timeout4 = setTimeout(() => {
       setStep(4);
       onComplete(); // 온보딩이 완료되었음을 알림
-    }, 6000);
+    }, 7000);
 
     return () => {
       clearTimeout(timeout1);
@@ -41,12 +40,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <Image src="/logo-benefiboard-white.svg" alt="Benefiboard Logo" width={240} height={36} />
       </div>
       <div className={`${styles.welcomeMessage} ${step >= 2 ? styles.visible : ''}`}>
-        Welcome to Benefiboard
+        새로운 방식의 컨텐츠 플랫폼을 경험해보세요
       </div>
       <div className={`${styles.features} ${step >= 3 ? styles.visible : ''}`}>
-        <div className={styles.feature}>투명한 수익 분배</div>
-        <div className={styles.feature}>짧은 광고</div>
-        <div className={styles.feature}>기부 옵션</div>
+        <div className={styles.feature}>컨텐츠를 소비하는 것만으로도 가치 있는 활동입니다</div>
+        <div className={styles.feature}>
+          플랫폼 수익의 50%를 유저, 크리에이터, 기부 파트너와 공유합니다.
+          <div className={styles.feature}>이제 시작합니다.</div>
+        </div>
       </div>
     </div>
   );

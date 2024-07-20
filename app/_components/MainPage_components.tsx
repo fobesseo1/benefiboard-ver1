@@ -1,5 +1,4 @@
-import { CurrentUserType, PostType } from '@/types/types';
-import { RepostType } from '../repost/_component/repost_list';
+import { CurrentUserType, PostType, RepostType } from '@/types/types';
 import Repost_list_mainpage from '../repost/_component/repost_list_mainpage';
 import TopPosts from './TopPosts';
 import Link from 'next/link';
@@ -32,7 +31,12 @@ export const RepostSection = ({
 }) => (
   <div className="w-full px-4 lg:w-[466px] lg:border border-gray-200 rounded-2xl">
     <h2 className="text-xl font-semibold lg:my-4 my-2">{title}</h2>
-    <Repost_list_mainpage initialPosts={posts} currentUser={currentUser} linkPath={linkPath} />
+    <Repost_list_mainpage
+      initialPosts={posts}
+      currentUser={currentUser}
+      linkPath={linkPath}
+      userId={currentUser?.id ?? null}
+    />
   </div>
 );
 

@@ -2,8 +2,7 @@
 import { getCurrentUser } from '@/lib/cookies';
 import SearchBar from '@/app/post/_component/SearchBar';
 import RepostSearchList from '../../_component/RepostSearchList';
-import { RepostType } from '../../_component/repost_list';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, RepostType } from '@/types/types';
 import { fetchLatestBestBatches } from '../../best/page';
 
 export default async function BestRepostSearchPage({

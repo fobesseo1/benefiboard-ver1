@@ -3,7 +3,7 @@
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
-import { RepostType } from '../_component/repost_list';
+import { RepostType } from '@/types/types';
 
 export async function fetchTop10BestBatches(): Promise<{ success: boolean; data: RepostType[] }> {
   const supabase = await createSupabaseServerClient();

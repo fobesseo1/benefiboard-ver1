@@ -125,6 +125,12 @@ export default function InfiniteScrollMessages({
     );
   };
 
+  const handleReply = (message: MessageType) => {
+    const replyTitle = `Re: ${message.title}`;
+    const encodedTitle = encodeURIComponent(replyTitle);
+    router.push(`/message/create?receiver_id=${message.sender_id}&title=${encodedTitle}`);
+  };
+
   return (
     <div>
       {messages.length > 0 ? (
@@ -215,10 +221,7 @@ export default function InfiniteScrollMessages({
                 </DialogDescription>
               </div>
               <div className="mt-4 flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push(`/message/create?receiver_id=${message.sender_id}`)}
-                >
+                <Button variant="outline" onClick={() => handleReply(message)}>
                   <BiReply className="mr-1" /> 답장
                 </Button>
                 <Dialog>

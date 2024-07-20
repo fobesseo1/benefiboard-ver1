@@ -26,3 +26,13 @@ export type PostType = {
   parent_category_name: string;
   child_category_name: string;
 };
+
+export type RepostType = {
+  id: number;
+  link: string;
+  title: string;
+  site: string;
+  created_at: string;
+  batch: number;
+  order: number;
+};

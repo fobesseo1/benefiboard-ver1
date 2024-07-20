@@ -6,9 +6,8 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { fetchTop10Batches, fetchTop10BestBatches } from '../repost/_actions/fetchRepostData';
-import { RepostType } from '../repost/_component/repost_list';
 import { findCategoryNameById } from '../post/_action/category';
-import { PostType } from '@/types/types';
+import { PostType, RepostType } from '@/types/types';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

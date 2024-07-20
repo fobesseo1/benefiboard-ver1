@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { CurrentUser } from '@/lib/cookies';
 import IconToggle from './IconToggleComments';
 import React from 'react';
+import { CurrentUserType } from '@/types/types';
 
 interface Comment {
   id: number;
@@ -17,7 +16,7 @@ interface CommentsProps {
   onDelete: (commentId: number) => void;
   onEdit: (comment: { id: number; content: string }) => void;
   onReply: (commentId: number) => void;
-  currentUser: CurrentUser;
+  currentUser: Partial<CurrentUserType>;
 }
 
 function buildCommentTree(comments: Comment[]): Comment[] {

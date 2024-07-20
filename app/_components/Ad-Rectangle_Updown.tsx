@@ -15,11 +15,18 @@ export default function Ad_Rectangle_Updown() {
   }, []);
 
   return (
-    <div className="ad-banner mx-auto h-24 flex flex-col relative border-[1px] border-red-200 p-1 overflow-hidden">
-      <h2 className="text-xs">Ad 무료공익광고 관심부탁드려요!!</h2>
-      <div className="flex-1 w-full h-full">
-        <img src="/adBottom-unicef.jpg" alt="Ad" className="object-cover w-full h-full" />
+    <>
+      <div className="ad-banner mx-auto h-24 flex flex-col relative  p-1 overflow-hidden">
+        <h2 className="text-xs">Ad 무료공익광고 관심부탁드려요!!</h2>
+        <div className="flex-1 w-full h-full bg-gradient-to-t from-blue-100 to-blue-50 p-4">
+          <img
+            src="/Logo_of_UNICEF.svg"
+            alt="Ad"
+            className="object-contain object-center w-full h-full "
+          />
+        </div>
       </div>
-    </div>
+      <hr className="mt-4" />
+    </>
   );
 }

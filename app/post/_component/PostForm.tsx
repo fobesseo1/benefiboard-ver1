@@ -1,4 +1,3 @@
-// app>post>_components/PostForm.tsx
 'use client';
 
 import { useState, FormEvent, ChangeEvent, useRef } from 'react';
@@ -31,11 +30,13 @@ export default function PostForm({
   user_email,
   initialParentCategoryId,
 }: UserPropsType) {
-  const [parentCategoryId, setParentCategoryId] = useState<string>(initialParentCategoryId || '');
-  const [childCategoryId, setChildCategoryId] = useState<string>('');
+  const [parentCategoryId, setParentCategoryId] = useState<string>(
+    initialParentCategoryId || 'default'
+  );
+  const [childCategoryId, setChildCategoryId] = useState<string>('default');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
-  const [contentType, setContentType] = useState<string>('text'); // 추가: 콘텐츠 타입 상태
+  const [contentType, setContentType] = useState<string>('text');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isValidCategoryId = (id: string) => {
@@ -44,7 +45,7 @@ export default function PostForm({
 
   const handleParentCategoryChange = (value: string) => {
     setParentCategoryId(value);
-    setChildCategoryId(''); // 부모 카테고리가 변경되면 자식 카테고리 초기화
+    setChildCategoryId('default');
   };
 
   const handleChildCategoryChange = (value: string) => {
@@ -52,13 +53,13 @@ export default function PostForm({
   };
 
   const handleContentTypeChange = (value: string) => {
-    setContentType(value); // 추가: 콘텐츠 타입 변경
+    setContentType(value);
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const fileArray = Array.from(files).slice(0, 5); // 최대 5개 이미지
+      const fileArray = Array.from(files).slice(0, 5);
       const validImages = fileArray.filter(
         (file) => file.size > 0 && file.type.startsWith('image/')
       );
@@ -68,7 +69,6 @@ export default function PostForm({
         ...validImages.map((file) => URL.createObjectURL(file)),
       ]);
 
-      // 파일 인풋을 리셋하여 중복 추가를 방지합니다.
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -85,7 +85,6 @@ export default function PostForm({
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
 
-    // 기존 FormData에 이미지 파일 추가 중복제거 및 빈 파일 제거
     images.forEach((image) => {
       if (
         image.size > 0 &&
@@ -100,77 +99,74 @@ export default function PostForm({
       }
     });
 
-    // User ID 추가 / User name 추가
     formData.append('user_id', user_id);
-    if (user_name) {
-      formData.append('user_name', user_name);
-    }
-    if (user_avatar_url) {
-      formData.append('user_avatar_url', user_avatar_url);
-    }
-    if (user_email) {
-      formData.append('user_email', user_email);
-    }
+    if (user_name) formData.append('user_name', user_name);
+    if (user_avatar_url) formData.append('user_avatar_url', user_avatar_url);
+    if (user_email) formData.append('user_email', user_email);
 
-    // 카테고리 ID 추가 (유효성 검사 후 추가)
     formData.append(
       'parent_category_id',
-      isValidCategoryId(parentCategoryId) ? parentCategoryId : ''
+      isValidCategoryId(parentCategoryId) && parentCategoryId !== 'default' ? parentCategoryId : ''
     );
-    formData.append('child_category_id', isValidCategoryId(childCategoryId) ? childCategoryId : '');
+    formData.append(
+      'child_category_id',
+      isValidCategoryId(childCategoryId) && childCategoryId !== 'default' ? childCategoryId : ''
+    );
 
-    // 추가: 콘텐츠 타입 추가
     formData.append('content_type', contentType);
 
-    console.log('Form Data:', Object.fromEntries(formData)); // 디버깅용
+    console.log('Form Data:', Object.fromEntries(formData));
 
     await createPost(formData);
   };
 
-  const parentCategories = parentCategoriesArray;
-  const childCategories = childCategoriesArray;
+  const parentCategories = [
+    { id: 'default', name: '메인 카테고리 선택' },
+    ...parentCategoriesArray,
+  ];
+  const childCategories = [{ id: 'default', name: '서브 카테고리 선택' }, ...childCategoriesArray];
 
   return (
-    <div className="mt-4 mx-auto px-6">
+    <div className="mt-4 mx-auto px-6 lg:w-[948px]">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">포스트 작성 페이지</h1>
       <form onSubmit={totalFormData} className="space-y-4">
-        {/* 제목 */}
         <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input type="text" name="title" id="title" required />
-        </div>
-        {/* 콘텐츠 타입 선택 */}
-        <div className="space-y-2">
-          <Label htmlFor="contentType">Content Type</Label>
+          <Label htmlFor="contentType">
+            포스트 타입 <span className="text-xs text-gray-400">＊일반/HTML＊</span>
+          </Label>
           <Select value={contentType} onValueChange={handleContentTypeChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Content Type" />
             </SelectTrigger>
             <SelectContent className="max-h-48 overflow-y-auto">
-              <SelectItem value="text">Text</SelectItem>
+              <SelectItem value="text">일반</SelectItem>
               <SelectItem value="html">HTML</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        {/* 내용 */}
         <div className="space-y-2">
-          <Label htmlFor="content">Content</Label>
+          <Label htmlFor="title">제목</Label>
+          <Input type="text" name="title" id="title" required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="content">내용</Label>
           {contentType === 'text' ? (
             <Textarea name="content" id="content" required />
           ) : (
             <Textarea name="content" id="content" required />
           )}
         </div>
-        {/* 카테고리1차 */}
         <div className="space-y-2">
-          <Label htmlFor="parent_category">Parent Category</Label>
-          <Select value={parentCategoryId || ''} onValueChange={handleParentCategoryChange}>
+          <Label htmlFor="parent_category">
+            메인 카테고리 <span className="text-xs text-gray-400">＊대분류＊</span>
+          </Label>
+          <Select value={parentCategoryId} onValueChange={handleParentCategoryChange}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Parent Category" />
+              <SelectValue placeholder="메인 카테고리 선택" />
             </SelectTrigger>
             <SelectContent className="max-h-48 overflow-y-auto">
               {parentCategories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
+                <SelectItem key={category.id || 'NULL'} value={category.id || 'NULL'}>
                   {category.name}
                 </SelectItem>
               ))}
@@ -178,23 +174,24 @@ export default function PostForm({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="child_category">Child Category</Label>
-          <Select value={childCategoryId || ''} onValueChange={handleChildCategoryChange}>
+          <Label htmlFor="child_category">
+            서브 카테고리 <span className="text-xs text-gray-400">＊소분류＊</span>
+          </Label>
+          <Select value={childCategoryId} onValueChange={handleChildCategoryChange}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Child Category" />
+              <SelectValue placeholder="서브 카테고리 선택" />
             </SelectTrigger>
             <SelectContent className="max-h-48 overflow-y-auto">
               {childCategories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
+                <SelectItem key={category.id || 'NULL'} value={category.id || 'NULL'}>
                   {category.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        {/* 이미지 */}
         <div className="space-y-2">
-          <Label htmlFor="images">Images (최대 5개)</Label>
+          <Label htmlFor="images">이미지 (최대 5개)</Label>
           <Input
             type="file"
             name="images"
@@ -219,15 +216,13 @@ export default function PostForm({
             </div>
           ))}
         </div>
-        {/* url */}
         <div className="space-y-2">
           <Label htmlFor="linkUrl1">외부 Url #1</Label>
           <Input type="text" name="linkUrl1" id="linkUrl1" />
           <Label htmlFor="linkUrl2">외부 Url #2</Label>
           <Input type="text" name="linkUrl2" id="linkUrl2" />
         </div>
-        {/* 버튼 */}
-        <Button type="submit">Create Post</Button>
+        <Button type="submit">포스트 작성</Button>
       </form>
     </div>
   );

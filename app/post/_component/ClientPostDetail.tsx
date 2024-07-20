@@ -8,7 +8,6 @@ import PostLikeDislike from './PostLikeDislike';
 import PostActions from './PostActions';
 import Comments from './Comments';
 import CommentDialog from './CommentDialog';
-import Advertisement from './Advertisement';
 import { incrementViews } from '../_action/incrementViews';
 import { deletePostById } from '../_action/post';
 import {

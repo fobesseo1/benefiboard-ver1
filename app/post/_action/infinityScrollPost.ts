@@ -3,9 +3,8 @@
 'use server';
 
 import createSupabaseServerClient from '@/lib/supabse/server';
-import { RepostType } from '@/app/repost/_component/repost_list';
 import { cache } from 'react';
-import { PostType } from '@/types/types';
+import { PostType, RepostType } from '@/types/types';
 import { findCategoryNameById } from './category';
 
 const CACHE_DURATION = 1 * 60 * 1000; // 1분 캐시

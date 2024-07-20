@@ -28,7 +28,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    response.headers.set('x-user-id', session.user.id);
+  }
 
   return response;
 }

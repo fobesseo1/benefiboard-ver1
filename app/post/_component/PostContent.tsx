@@ -22,7 +22,7 @@ const PostContent = ({ content, contentType }: { content: string; contentType: s
   } else {
     return (
       <section className="flex flex-col my-6 gap-8">
-        <p className="leading-normal">{content}</p>
+        <p className="leading-normal whitespace-pre-wrap break-words">{content}</p>
       </section>
     );
   }

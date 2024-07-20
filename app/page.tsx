@@ -8,6 +8,7 @@ import OnboardingLogicWrapper from './_components/OnboardingLogicWrapper';
 import RepostSection from './_components/RepostSection';
 import PostsSection from './_components/PostsSection';
 import { CurrentUserType } from '@/types/types';
+import TodayNoticePopup from './_components/TodayNoticePopup';
 
 export const revalidate = 1800;
 
@@ -23,7 +24,7 @@ const BestRepostsSectionWrapper = async () => {
   const bestReposts = await fetchBestReposts();
   return ({ currentUser }: { currentUser: CurrentUserType | null }) => (
     <RepostSection
-      title="repost best 10"
+      title="인기 커뮤니티 오늘의 베스트 10"
       posts={bestReposts}
       linkPath="/repost/best"
       currentUser={currentUser}
@@ -35,7 +36,7 @@ const BasicRepostsSectionWrapper = async () => {
   const basicReposts = await fetchBasicReposts();
   return ({ currentUser }: { currentUser: CurrentUserType | null }) => (
     <RepostSection
-      title="repost basic 10"
+      title="인기 커뮤니티 실시간 베스트 10"
       posts={basicReposts}
       linkPath="/repost"
       currentUser={currentUser}
@@ -51,6 +52,7 @@ export default async function Home() {
 
   return (
     <OnboardingLogicWrapper currentUser={currentUser}>
+      <TodayNoticePopup />
       <Suspense fallback={<SkeletonLoader />}>
         <BestRepostsSectionComponent currentUser={currentUser} />
       </Suspense>

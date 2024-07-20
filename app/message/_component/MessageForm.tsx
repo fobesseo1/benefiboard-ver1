@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { createMessage, searchUsers, fetchUserById } from '../_action/message';
-// fetchUserById 함수 임포트
 import {
   Dialog,
   DialogContent,
@@ -41,6 +40,7 @@ export default function MessageForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const receiverIdFromParams = searchParams.get('receiver_id');
+  const titleFromParams = searchParams.get('title');
 
   useEffect(() => {
     if (receiverIdFromParams) {
@@ -52,7 +52,11 @@ export default function MessageForm({
         }
       })();
     }
-  }, [receiverIdFromParams]);
+
+    if (titleFromParams) {
+      setTitle(decodeURIComponent(titleFromParams));
+    }
+  }, [receiverIdFromParams, titleFromParams]);
 
   const handleUsernameChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -122,9 +126,9 @@ export default function MessageForm({
             required
             value={receiverUsername}
             onChange={handleUsernameChange}
-            disabled={!!receiverIdFromParams} // receiver_id가 있을 때 비활성화
+            disabled={!!receiverIdFromParams}
           />
-          {usernameSuggestions.length > 0 && (
+          {usernameSuggestions.length > 0 && !receiverIdFromParams && (
             <ul className="bg-white border border-gray-200 mt-2">
               {usernameSuggestions.map((user) => (
                 <li
@@ -162,7 +166,6 @@ export default function MessageForm({
         <Button type="submit">쪽지 보내기</Button>
       </form>
 
-      {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>

@@ -3,13 +3,12 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, RepostType } from '@/types/types';
 import { fetchReposts, fetchBestReposts } from '../_actions/repostActions';
 import RepostItem from './RepostItem';
 import { Button } from '@/components/ui/button';
 import { addDonationPoints } from '@/app/post/_action/adPointSupabase';
 import RepostPopup from './RepostPopup';
-import { RepostType } from './repost_list';
 
 interface RepostSearchListProps {
   currentUser: CurrentUserType | null;

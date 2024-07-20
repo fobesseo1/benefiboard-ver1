@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/cookies';
 import EditForm from '../../_component/EditForm';
-import { CurrentUserType } from '@/app/page';
+import { CurrentUserType } from '@/types/types';
 
 export default async function PostEditPage() {
   const currentUser: CurrentUserType | null = await getCurrentUser();

@@ -1,33 +1,52 @@
 //app>post>[catergoryId]\page.tsx
+
 import { getCurrentUser } from '@/lib/cookies';
 import createSupabaseServerClient from '@/lib/supabse/server';
 import { calculatePoints } from '../_action/adPoint';
 import { findCategoryNameById } from '../_action/category';
 import SearchBar from '../_component/SearchBar';
-import InfiniteScrollPosts from '../_component/InfiniteScrollPosts';
 import FixedIconGroup from '../_component/FixedIconGroup';
-import { CurrentUserType } from '@/types/types';
+import { CurrentUserType, PostType } from '@/types/types';
+import PagedPosts from '../_component/PagedPosts';
 
-export default async function PostListPageByCategory({
-  params,
-}: {
+interface PageProps {
   params: { categoryId: string };
-}) {
+  searchParams: { page?: string };
+}
+
+export default async function PostListPageByCategory({ params, searchParams }: PageProps) {
   const { categoryId } = params;
+  const page = Number(searchParams.page) || 1;
+  const pageSize = 20; // 페이지당 게시물 수
 
   const supabase = await createSupabaseServerClient();
+
+  // 총 게시물 수 가져오기
+  const { count, error: countError } = await supabase
+    .from('post')
+    .select('*', { count: 'exact', head: true })
+    .eq('parent_category_id', categoryId);
+
+  if (countError) {
+    console.error('Error fetching post count:', countError);
+    return <div>Error loading posts</div>;
+  }
+
+  const totalCount = count || 0;
+
+  // 현재 페이지의 게시물 가져오기
   const { data: posts, error } = await supabase
     .from('post')
     .select('*')
-    .eq('parent_category_id', categoryId) // 카테고리 ID로 필터링
+    .eq('parent_category_id', categoryId)
     .order('created_at', { ascending: false })
-    .limit(10);
+    .range((page - 1) * pageSize, page * pageSize - 1);
 
   const currentUser: CurrentUserType | null = await getCurrentUser();
 
   const postsData = posts || [];
 
-  const initialPosts = await Promise.all(
+  const initialPosts: PostType[] = await Promise.all(
     postsData.map(async (post) => {
       const parentCategoryName = await findCategoryNameById(post.parent_category_id);
       const childCategoryName = await findCategoryNameById(post.child_category_id);
@@ -65,9 +84,6 @@ export default async function PostListPageByCategory({
     };
   }
 
-  // console.log('categoryInitial', initialPosts);
-  // console.log('Category ID:', categoryId); // 카테고리 ID 로그 출력
-
   // 검색 제안을 위해 제목 목록 생성
   const searchSuggestions = Array.from(new Set(postsData.map((post) => post.title)));
 
@@ -76,11 +92,13 @@ export default async function PostListPageByCategory({
       <SearchBar searchUrl="/post/search" suggestions={searchSuggestions} />
 
       <div className="flex flex-col px-4 pt-4 ">
-        <InfiniteScrollPosts
+        <PagedPosts
           initialPosts={initialPosts}
           userId={currentUser?.id ?? null}
           currentUser={currentUser}
-          categoryId={categoryId} // 카테고리 ID 전달
+          categoryId={categoryId}
+          totalCount={totalCount}
+          currentPage={page}
         />
       </div>
       <FixedIconGroup />
